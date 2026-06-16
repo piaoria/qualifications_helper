@@ -4,6 +4,30 @@
 
 ---
 
+## [2026-06-16] — DB 스키마 & 아키텍처 확정
+
+### feat
+- `db/schema.sql` 추가: Supabase 테이블 5종
+  - `certifications` (자격증 종목 마스터)
+  - `exam_schedules` (큐넷 시험 회차별 일정, 필기/실기)
+  - `job_filters` (원티드 공고 수집 조건)
+  - `job_postings` (채용 공고, 북마크/숨김)
+  - `sync_logs` (스케줄러 실행 로그)
+  - RLS 정책 + updated_at 트리거 포함
+
+### chore
+- `.gitignore` 추가
+- `.claude/settings.json` 권한/훅 설정
+
+### 설계 결정 (변경)
+- **데이터 저장: localStorage → Supabase 전환** (자동 수집/알림 위해 백엔드 필요)
+- 배포: GitHub Actions → GitHub Pages (정적, HTTPS)
+- 알림 방식: 푸시 X, "열면 최신" pull 방식
+- 데이터 소스: 큐넷(공공데이터포털 API), 원티드(비공식 API)
+- 타겟 자격증: 정보처리기사, 빅데이터분석기사, 정보보안기사
+
+---
+
 ## [2026-06-16] — 프로젝트 초기화
 
 ### docs
