@@ -7,8 +7,7 @@ on:
   workflow_dispatch:
   # 임시: 첫 수집 테스트용 (확인 후 제거)
   push:
-    paths:
-      - .github/workflows/collect.yml
+    branches: [master]
 
 jobs:
   collect:

@@ -71,15 +71,25 @@ const collectQnet = async () => {
   const certs = await certRes.json();
   const year = new Date().getFullYear();
 
+  // 키 형태 자동 판별: 이미 인코딩된 키(% 포함)면 그대로, 아니면 인코딩
+  const keyParam = DATA_GO_KR_KEY.includes('%') ? DATA_GO_KR_KEY : encodeURIComponent(DATA_GO_KR_KEY);
+
   // 올해+내년 일정 수집
   let items = [];
   for (const yy of [year, year + 1]) {
     const url =
       `http://apis.data.go.kr/B490007/qualExamSchd/getQualExamSchdList` +
-      `?serviceKey=${encodeURIComponent(DATA_GO_KR_KEY)}` +
+      `?serviceKey=${keyParam}` +
       `&dataFormat=json&numOfRows=500&pageNo=1&implYy=${yy}&qualgbCd=T`;
     const res = await fetch(url);
-    const json = await res.json();
+    const text = await res.text();
+    // 인증 전이면 JSON이 아니라 "Unauthorized" 같은 텍스트가 옴
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      throw new Error(`큐넷 응답이 JSON 아님(키 미인증 가능): "${text.slice(0, 80)}"`);
+    }
     const body = json?.response?.body;
     const got = body?.items?.item ?? body?.items ?? [];
     items.push(...(Array.isArray(got) ? got : [got]));
