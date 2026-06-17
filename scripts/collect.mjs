@@ -130,8 +130,8 @@ const collectQnet = async () => {
   const n = await upsert('exam_schedules', rows, 'certification_id,round');
   console.log(`큐넷: ${items.length}건 수신 → ${n}건 저장`);
   // 임시 진단: 응답 필드명/샘플 종목명 기록
-  const grades = [...new Set(items.map((it) => it.qualgbNm))];
-  const debug = `recv=${items.length} grades=[${grades.join(',')}] descs=[${items.slice(0, 6).map((it) => it.description).join(' | ')}]`;
+  const uniq = [...new Set(items.map((it) => it.description))];
+  const debug = `recv=${items.length} uniq=${uniq.length} :: ${uniq.join(' || ')}`.slice(0, 1500);
   await logSync('qnet', 'success', n, debug);
 };
 
