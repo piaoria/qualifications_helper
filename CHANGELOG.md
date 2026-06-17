@@ -4,6 +4,18 @@
 
 ---
 
+## [2026-06-17] — GitHub Pages 배포 설정
+
+### ci
+- `.github/workflows/deploy.yml`: master push 시 GitHub Pages 자동 배포
+- 빌드 없는 정적 사이트 → 루트 전체 업로드
+- 모든 경로 상대경로라 서브경로(/qualifications_helper/)에서도 동작
+
+### 필요 (1회 수동)
+- 저장소 Settings → Pages → Source = "GitHub Actions" 설정
+
+---
+
 ## [2026-06-17] — 와이어프레임 UI 구현
 
 ### feat
