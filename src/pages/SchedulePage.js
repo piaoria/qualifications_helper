@@ -4,6 +4,8 @@ import { Icon } from '../components/Icon.js';
 import { EmptyState, LoadingState, ErrorState } from '../components/EmptyState.js';
 import { DdayBadge } from '../components/DdayBadge.js';
 import { CertTimeline } from '../components/CertTimeline.js';
+import { nextMilestone } from '../utils/exam.js';
+import { daysUntil } from '../utils/date.js';
 import { getExamSchedules } from '../services/certificationService.js';
 import { getJobPostings } from '../services/jobService.js';
 import { mountCalendar } from './CalendarPage.js';
@@ -40,15 +42,28 @@ export const SchedulePage = async (mount) => {
       body.replaceChildren(EmptyState('시험 일정이 아직 없어요'));
       return;
     }
+    // 가장 가까운 다음 단계 순 → 지난(종료) 일정은 맨 아래
+    const sorted = [...exams].sort((a, b) => {
+      const da = nextMilestone(a);
+      const db = nextMilestone(b);
+      if (!da && !db) return 0;
+      if (!da) return 1;
+      if (!db) return -1;
+      return daysUntil(da.date) - daysUntil(db.date);
+    });
+
     const list = html('<div class="list"></div>');
-    exams.forEach((e) => {
+    sorted.forEach((e) => {
       const name = e.certifications?.name ?? '자격증';
-      const next = e.written_exam_start || e.practical_exam_start || null;
+      const next = nextMilestone(e);
+      const dday = next
+        ? `<span class="card__next">${next.label}</span>${DdayBadge(next.date)}`
+        : '<span class="badge badge--past">종료</span>';
       const card = html(`
         <article class="card card--exam">
           <header class="card__head">
             <h3 class="card__title">${esc(name)}</h3>
-            ${DdayBadge(next)}
+            <div class="card__dday">${dday}</div>
           </header>
           <p class="card__round">${esc(e.round || '')}</p>
         </article>

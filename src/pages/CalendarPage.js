@@ -1,14 +1,17 @@
 // 달력 렌더 — 월별 일정 + 날짜별 상세
 // 이미 불러온 exams/jobs를 받아 root에 달력을 그린다 (일정 페이지에서 재사용).
 import { html, esc } from '../utils/dom.js';
-import { ymd, buildMonthGrid, examEvents, jobEvents, groupByDate } from '../utils/calendar.js';
+import { ymd, buildMonthGrid, rangeEvents, pointEvents, expandByDate, groupByDate } from '../utils/calendar.js';
 import { Icon } from '../components/Icon.js';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 const TYPE_LABEL = { exam: '시험', apply: '접수', result: '발표', job: '마감' };
 
 export const mountCalendar = (root, exams, jobs) => {
-  const byDate = groupByDate([...examEvents(exams), ...jobEvents(jobs)]);
+  const ranges = rangeEvents(exams);
+  const points = pointEvents(exams, jobs);
+  const pointMap = groupByDate(points);
+  const detailMap = expandByDate(ranges, points);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const todayStr = ymd(today);
@@ -28,19 +31,20 @@ export const mountCalendar = (root, exams, jobs) => {
     const cellHtml = (cell) => {
       if (!cell) return '<div class="cal__cell cal__cell--blank"></div>';
       const ds = ymd(cell);
-      const evs = byDate.get(ds) || [];
-      const types = [...new Set(evs.map((e) => e.type))].slice(0, 4);
-      const dots = types.map((t) => `<span class="dot dot--${t}"></span>`).join('');
+      const rtypes = [...new Set(ranges.filter((r) => ds >= r.start && ds <= r.end).map((r) => r.type))].slice(0, 3);
+      const bars = rtypes.map((t) => `<span class="cbar cbar--${t}"></span>`).join('');
+      const ptypes = [...new Set((pointMap.get(ds) || []).map((e) => e.type))].slice(0, 4);
+      const dots = ptypes.map((t) => `<span class="dot dot--${t}"></span>`).join('');
       const cls = ['cal__cell'];
       if (ds === todayStr) cls.push('cal__cell--today');
       if (ds === selected) cls.push('cal__cell--selected');
       const dow = cell.getDay();
       const dcls = dow === 0 ? 'cal__num cal__num--sun' : dow === 6 ? 'cal__num cal__num--sat' : 'cal__num';
-      return `<button class="${cls.join(' ')}" data-date="${ds}"><span class="${dcls}">${cell.getDate()}</span><span class="cal__dots">${dots}</span></button>`;
+      return `<button class="${cls.join(' ')}" data-date="${ds}"><span class="${dcls}">${cell.getDate()}</span><span class="cal__bars">${bars}</span><span class="cal__dots">${dots}</span></button>`;
     };
 
     const selWd = WEEKDAYS[new Date(selected).getDay()];
-    const dayEvs = byDate.get(selected) || [];
+    const dayEvs = detailMap.get(selected) || [];
     const detail = dayEvs.length
       ? dayEvs
           .map(

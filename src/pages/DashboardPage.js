@@ -1,6 +1,7 @@
 // 대시보드 — 임박한 일정 모아보기
 import { html } from '../utils/dom.js';
 import { daysUntil } from '../utils/date.js';
+import { nextMilestone } from '../utils/exam.js';
 import { getExamSchedules } from '../services/certificationService.js';
 import { getJobPostings } from '../services/jobService.js';
 import { ExamItem } from '../components/ExamItem.js';
@@ -29,7 +30,7 @@ export const DashboardPage = async (mount) => {
     const items = [
       ...exams.map((e) => ({
         type: 'exam',
-        date: e.written_exam_start || e.practical_exam_start,
+        date: nextMilestone(e)?.date ?? null,
         data: e,
       })),
       ...jobs.map((j) => ({ type: 'job', date: j.due_date, data: j })),

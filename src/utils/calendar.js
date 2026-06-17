@@ -39,6 +39,70 @@ export const jobEvents = (jobs) =>
     .filter((j) => j.due_date)
     .map((j) => ({ date: String(j.due_date).slice(0, 10), type: 'job', label: `${j.company_name} 마감` }));
 
+const d10 = (v) => String(v).slice(0, 10);
+const eachDay = (start, end) => {
+  const out = [];
+  const d = new Date(start);
+  const e = new Date(end);
+  while (d <= e) {
+    out.push(ymd(d));
+    d.setDate(d.getDate() + 1);
+  }
+  return out;
+};
+
+// 다일 기간 → 막대 이벤트 (접수기간, 기간형 시험). 시작==종료(단일)는 제외
+export const rangeEvents = (exams) => {
+  const out = [];
+  const add = (s, e, type, label) => {
+    if (!s || !e) return;
+    const ss = d10(s);
+    const ee = d10(e);
+    if (ee <= ss) return; // 단일일은 점으로 처리
+    out.push({ start: ss, end: ee, type, label });
+  };
+  for (const ex of exams) {
+    const name = ex.certifications?.name ?? '자격증';
+    add(ex.written_apply_start, ex.written_apply_end, 'apply', `${name} 필기접수`);
+    add(ex.practical_apply_start, ex.practical_apply_end, 'apply', `${name} 실기접수`);
+    add(ex.written_exam_start, ex.written_exam_end, 'exam', `${name} 필기시험`);
+    add(ex.practical_exam_start, ex.practical_exam_end, 'exam', `${name} 실기시험`);
+  }
+  return out;
+};
+
+// 단일 일자 → 점 이벤트 (시험일·발표일·공고 마감, 단일 접수)
+export const pointEvents = (exams, jobs) => {
+  const evs = [];
+  const add = (date, type, label) => {
+    if (date) evs.push({ date: d10(date), type, label });
+  };
+  const single = (s, e) => s && (!e || d10(e) <= d10(s));
+  for (const ex of exams) {
+    const name = ex.certifications?.name ?? '자격증';
+    if (single(ex.written_apply_start, ex.written_apply_end)) add(ex.written_apply_start, 'apply', `${name} 필기접수`);
+    if (single(ex.practical_apply_start, ex.practical_apply_end)) add(ex.practical_apply_start, 'apply', `${name} 실기접수`);
+    if (single(ex.written_exam_start, ex.written_exam_end)) add(ex.written_exam_start, 'exam', `${name} 필기시험`);
+    if (single(ex.practical_exam_start, ex.practical_exam_end)) add(ex.practical_exam_start, 'exam', `${name} 실기시험`);
+    add(ex.written_result_date, 'result', `${name} 필기발표`);
+    add(ex.final_result_date, 'result', `${name} 최종발표`);
+  }
+  for (const j of jobs) add(j.due_date, 'job', `${j.company_name} 마감`);
+  return evs;
+};
+
+// 상세 리스트용: 기간을 일자별로 펼치고 단일 이벤트 합쳐 날짜별 Map
+export const expandByDate = (ranges, points) => {
+  const map = new Map();
+  const push = (date, ev) => {
+    if (!map.has(date)) map.set(date, []);
+    map.get(date).push(ev);
+  };
+  for (const r of ranges) for (const day of eachDay(r.start, r.end)) push(day, { type: r.type, label: r.label });
+  for (const p of points) push(p.date, { type: p.type, label: p.label });
+  return map;
+};
+
 // 이벤트 배열 → 날짜별 Map
 export const groupByDate = (events) => {
   const map = new Map();

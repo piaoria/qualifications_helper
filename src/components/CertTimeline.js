@@ -39,6 +39,11 @@ export const CertTimeline = (exam) => {
 
     root.replaceChildren();
     STAGES.forEach((stage, i) => {
+      // 해당 일정이 없으면(예: 실기 없는 자격증) 빈 칸으로 두고 렌더 생략
+      if (!exam[stage.dateKey]) {
+        root.append(html('<div class="tl__step tl__step--empty"></div>'));
+        return;
+      }
       const status = prog[stage.key] || null;
       const state = stageState(exam, stage, status);
       const active = i === current && state === 'future';

@@ -160,6 +160,9 @@ body {
 .card__pos { font-size: 14px; margin-bottom: 4px; }
 .card__meta { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
 .card__due { font-size: 13px; }
+/* 다음 단계 라벨 + D-day */
+.card__dday { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.card__next { font-size: 11px; font-weight: 600; color: var(--muted); }
 
 .card__dates {
   display: grid;
@@ -270,6 +273,9 @@ body {
 .tl__step--active .tl__label { color: var(--ink); }
 /* 날짜 지났는데 결과 미입력 */
 .tl__step--await .tl__dot { border-style: dashed; border-color: var(--brand-line); }
+/* 일정 없는 단계 (실기 없는 자격증 등) → 빈 칸 */
+.tl__step--empty { visibility: hidden; }
+.tl__step--empty::before { display: none; }
 
 /* ===== 칩 ===== */
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
@@ -436,7 +442,7 @@ button.chip {
 .cal__grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
+  gap: 1px;
 }
 .cal__grid--wd { margin-bottom: 4px; }
 .cal__wd {
@@ -487,6 +493,14 @@ button.chip {
 .dot--apply  { background: #c99a2e; }
 .dot--result { background: #4e8d7c; }
 .dot--job    { background: #c0453b; }
+
+/* 기간 막대 (접수기간 등) — 인접 셀이 이어져 긴 막대로 보임 */
+.cal__bars { display: flex; flex-direction: column; gap: 1px; width: 100%; margin-top: 1px; }
+.cbar { height: 3px; border-radius: 1px; }
+.cbar--apply  { background: #c99a2e; }
+.cbar--exam   { background: var(--brand); }
+.cbar--result { background: #4e8d7c; }
+.cbar--job    { background: #c0453b; }
 
 /* 달력 상세 */
 .cal__detail {

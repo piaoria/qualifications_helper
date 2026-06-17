@@ -2,19 +2,22 @@
 import { html, esc } from '../utils/dom.js';
 import { formatDate } from '../utils/date.js';
 import { DdayBadge } from './DdayBadge.js';
+import { nextMilestone } from '../utils/exam.js';
 
 // exam: exam_schedules 행 (+ certifications(name))
-// 다가오는 가장 가까운 날짜를 D-day 기준으로 사용
+// 다음에 닥치는 단계(접수/시험/발표)까지 D-day 표시
 export const ExamItem = (exam) => {
   const name = exam.certifications?.name ?? '자격증';
-  const nextDate =
-    exam.written_exam_start || exam.practical_exam_start || null;
+  const next = nextMilestone(exam);
+  const dday = next
+    ? `<span class="card__next">${next.label}</span>${DdayBadge(next.date)}`
+    : '<span class="badge badge--past">종료</span>';
 
   return html(`
     <article class="card card--exam">
       <header class="card__head">
         <h3 class="card__title">${esc(name)}</h3>
-        ${DdayBadge(nextDate)}
+        <div class="card__dday">${dday}</div>
       </header>
       <p class="card__round">${esc(exam.round)}</p>
       <dl class="card__dates">
