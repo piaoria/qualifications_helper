@@ -190,17 +190,18 @@ body {
 .hero__dday--soon { color: var(--brand-strong); }
 
 /* ===== 홈 섹션 + compact 행 ===== */
-.dash-sec { margin-bottom: 20px; }
+.dash-sec { margin-bottom: 22px; }
 .dash-sec:last-child { margin-bottom: 0; }
 .dash-sec__title {
   display: flex;
   align-items: center;
   gap: 6px;
+  min-height: 20px; /* 개수 칩 유무와 무관하게 라벨 높이 통일 */
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.02em;
   color: var(--muted);
-  margin-bottom: 11px;
+  margin-bottom: 9px;
 }
 .dash-sec__count {
   display: inline-flex;
