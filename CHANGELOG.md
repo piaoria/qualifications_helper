@@ -4,6 +4,26 @@
 
 ---
 
+## [2026-06-17] — UI 컨셉 적용 (Claude 감성 + 도트)
+
+### feat
+- 디자인 컨셉 확정: 크림/코랄 팔레트 + 도트(픽셀) 감성
+- `assets/mascot.png`: 오리지널 도트 마스코트 (헤더에 표시)
+- `tools/generate-mascot.mjs`: 의존성 없는 마스코트 생성기
+- `src/styles/main.css` 전면 리스킨
+  - 폰트 Pretendard (CDN)
+  - 메인 컬러 `--brand` 단일 토큰 → 나머지 color-mix 자동 파생 (교체 쉬움)
+  - 도트 배경 패턴, 각진 뱃지/FAB, 마스코트 pixelated
+
+### chore
+- manifest/theme-color 크림(#f5f4ee)으로
+- SW 캐시 버전 v2 (새 스타일 반영)
+
+### 참고
+- Anthropic 마스코트 직접 복제 대신 동일 감성의 오리지널 캐릭터 제작 (상표 회피)
+
+---
+
 ## [2026-06-17] — PWA 완성 (오프라인 + 설치)
 
 ### feat

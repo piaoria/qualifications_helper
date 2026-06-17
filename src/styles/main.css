@@ -1,87 +1,121 @@
 /* =========================================================
-   취준 일정 헬퍼 — 와이어프레임 스타일
-   모바일 퍼스트 (~420px), 그레이스케일 + 점선 박스
+   취준 일정 헬퍼 — Claude 감성 테마
+   따뜻한 크림/코랄 + 도트(픽셀) 감성, 모바일 퍼스트
+   폰트: Pretendard
    ========================================================= */
 
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+
+/* =========================================================
+   🎨 메인 컬러 — 취향 바뀌면 여기 --brand 한 줄만 바꾸세요.
+   나머지 색은 이 값에서 자동 파생됩니다 (color-mix).
+   ========================================================= */
 :root {
-  --bg: #f4f4f4;
-  --surface: #ffffff;
-  --ink: #222222;
-  --muted: #777777;
-  --line: #cccccc;
-  --line-dash: #999999;
-  --soon: #d9480f;
-  --far: #555555;
-  --past: #aaaaaa;
-  --radius: 10px;
-  --gap: 12px;
+  --brand: #d97757;              /* ← 메인 포인트 컬러 (Claude 코랄) */
+
+  /* brand 파생 (보통 건드릴 필요 없음) */
+  --brand-strong: color-mix(in srgb, var(--brand) 78%, #000);
+  --brand-soft:   color-mix(in srgb, var(--brand) 14%, var(--surface));
+  --brand-line:   color-mix(in srgb, var(--brand) 35%, var(--line));
+
+  /* 중립 톤 (Claude 크림 계열) */
+  --bg:       #f5f4ee;
+  --surface:  #fffdf8;
+  --ink:      #20201d;
+  --muted:    #76736b;
+  --line:     #e6e3d8;
+
+  /* 상태색 */
+  --past:     #b3afa4;
+
+  --radius:   14px;
+  --gap:      12px;
+  --font: "Pretendard", -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
-  background: var(--bg);
+  font-family: var(--font);
   color: var(--ink);
+  /* 은은한 도트 패턴 배경 */
+  background-color: var(--bg);
+  background-image: radial-gradient(color-mix(in srgb, var(--ink) 6%, transparent) 1.2px, transparent 1.2px);
+  background-size: 12px 12px;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 .app {
   max-width: 420px;
   margin: 0 auto;
   min-height: 100vh;
-  background: var(--bg);
   position: relative;
-  padding-bottom: 80px;
+  padding-bottom: 88px;
 }
 
-/* 헤더 */
+/* ===== 헤더 ===== */
 .app__header {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--ink);
-  color: #fff;
-  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+  padding: 12px 16px;
 }
-.app__logo { font-size: 17px; font-weight: 700; }
+.app__mascot {
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;   /* 도트 감성 유지 */
+}
+.app__logo { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; }
 
-/* 탭 */
+/* ===== 탭 ===== */
 .app__tabs {
   position: sticky;
-  top: 50px;
+  top: 57px;
   z-index: 10;
   display: flex;
-  background: var(--surface);
+  gap: 6px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  padding: 8px 12px;
   border-bottom: 1px solid var(--line);
 }
 .tab {
   flex: 1;
-  padding: 12px 0;
-  border: none;
+  padding: 9px 0;
+  border: 1px solid transparent;
+  border-radius: 10px;
   background: none;
+  font-family: var(--font);
   font-size: 14px;
   color: var(--muted);
   cursor: pointer;
-  border-bottom: 2px solid transparent;
 }
 .tab--active {
-  color: var(--ink);
+  color: var(--brand-strong);
   font-weight: 700;
-  border-bottom-color: var(--ink);
+  background: var(--brand-soft);
+  border-color: var(--brand-line);
 }
 
-/* 페이지 */
+/* ===== 페이지 ===== */
 .app__view { padding: 16px; }
-.page__title { font-size: 15px; margin-bottom: 12px; }
+.page__title { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
 .list { display: flex; flex-direction: column; gap: var(--gap); }
 
-/* 카드 (와이어프레임 = 점선 박스) */
+/* ===== 카드 ===== */
 .card {
   background: var(--surface);
-  border: 1px dashed var(--line-dash);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 14px;
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--ink) 4%, transparent);
 }
 .card__head {
   display: flex;
@@ -96,7 +130,6 @@ body {
 .card__meta { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
 .card__due { font-size: 13px; }
 
-/* 시험 날짜 그리드 */
 .card__dates {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -106,50 +139,53 @@ body {
 .card__dates dt { color: var(--muted); font-size: 11px; }
 .card__dates dd { font-weight: 600; }
 
-/* D-day 뱃지 */
+/* ===== D-day 뱃지 (각진 픽셀 느낌) ===== */
 .badge {
   font-size: 12px;
   font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 20px;
-  border: 1px solid currentColor;
+  padding: 3px 9px;
+  border-radius: 6px;
   white-space: nowrap;
 }
-.badge--soon { color: var(--soon); }
-.badge--far  { color: var(--far); }
-.badge--past { color: var(--past); }
+.badge--soon { background: var(--brand); color: #fff; }
+.badge--far  { background: var(--brand-soft); color: var(--brand-strong); }
+.badge--past { background: color-mix(in srgb, var(--past) 25%, var(--surface)); color: var(--past); }
 
-/* 카드 액션 */
-.card__actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-}
+/* ===== 카드 액션 ===== */
+.card__actions { display: flex; gap: 8px; margin-top: 10px; }
 .btn {
   flex: 1;
   text-align: center;
+  font-family: var(--font);
   font-size: 12px;
-  padding: 7px 0;
+  padding: 8px 0;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--surface);
   color: var(--ink);
   text-decoration: none;
   cursor: pointer;
 }
-.btn--bookmark[aria-pressed="true"] { border-color: var(--ink); font-weight: 700; }
+.btn--bookmark[aria-pressed="true"] {
+  border-color: var(--brand);
+  color: var(--brand-strong);
+  background: var(--brand-soft);
+  font-weight: 700;
+}
 
-/* 칩 (자격증 종목) */
+/* ===== 칩 ===== */
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
 .chip {
   font-size: 12px;
-  padding: 5px 12px;
-  border: 1px solid var(--line-dash);
+  font-weight: 600;
+  padding: 6px 12px;
+  border: 1px solid var(--brand-line);
   border-radius: 20px;
-  background: var(--surface);
+  background: var(--brand-soft);
+  color: var(--brand-strong);
 }
 
-/* 빈 상태 */
+/* ===== 빈 상태 ===== */
 .empty {
   text-align: center;
   color: var(--muted);
@@ -157,20 +193,21 @@ body {
   padding: 40px 0;
   white-space: pre-line;
 }
-.empty--error { color: var(--soon); }
+.empty--error { color: var(--brand-strong); }
 
-/* FAB */
+/* ===== FAB ===== */
 .fab {
   position: fixed;
   right: max(16px, calc(50% - 210px + 16px));
-  bottom: 20px;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
+  bottom: 22px;
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;             /* 살짝 각진 = 도트 느낌 */
   border: none;
-  background: var(--ink);
+  background: var(--brand);
   color: #fff;
   font-size: 26px;
   cursor: pointer;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--brand) 45%, transparent);
 }
+.fab:active { background: var(--brand-strong); }
