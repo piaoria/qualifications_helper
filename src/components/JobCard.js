@@ -2,6 +2,7 @@
 import { html, esc } from '../utils/dom.js';
 import { formatDate } from '../utils/date.js';
 import { DdayBadge } from './DdayBadge.js';
+import { Icon } from './Icon.js';
 
 // job: job_postings 행
 // onBookmark / onHide: (id) => void 콜백
@@ -21,10 +22,12 @@ export const JobCard = (job, { onBookmark, onHide } = {}) => {
       <p class="card__due">마감: ${formatDate(job.due_date)}</p>
       <footer class="card__actions">
         <button class="btn btn--bookmark" aria-pressed="${job.is_bookmarked}">
-          ${job.is_bookmarked ? '★ 관심' : '☆ 관심'}
+          ${Icon('bookmark', { size: 15, fill: job.is_bookmarked })}<span>관심</span>
         </button>
-        <a class="btn btn--link" href="${esc(job.url)}" target="_blank" rel="noopener">🔗 공고</a>
-        <button class="btn btn--hide">✕ 숨김</button>
+        <a class="btn btn--link" href="${esc(job.url)}" target="_blank" rel="noopener">
+          ${Icon('link', { size: 15 })}<span>공고</span>
+        </a>
+        <button class="btn btn--hide">${Icon('x', { size: 15 })}<span>숨김</span></button>
       </footer>
     </article>
   `);

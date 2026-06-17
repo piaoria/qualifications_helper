@@ -4,6 +4,21 @@
 
 ---
 
+## [2026-06-17] — 마스코트 단순화 + 아이콘화 (이모지 제거)
+
+### feat
+- `src/components/Icon.js`: 라인 아이콘 세트(SVG) — bell/cap/briefcase/bookmark/link/x/inbox/alert/plus
+- 마스코트 미니멀 리디자인: 둥근 네모 + 점 눈 2개 (적은 도트)
+
+### refactor
+- 모든 이모지 → 라인 아이콘 교체 (페이지 타이틀/공고 버튼/빈 상태/FAB)
+- 버튼·타이틀·빈상태 아이콘 정렬 CSS
+
+### chore
+- SW 캐시 v3
+
+---
+
 ## [2026-06-17] — UI 컨셉 적용 (Claude 감성 + 도트)
 
 ### feat

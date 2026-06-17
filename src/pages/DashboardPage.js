@@ -6,11 +6,12 @@ import { getJobPostings } from '../services/jobService.js';
 import { ExamItem } from '../components/ExamItem.js';
 import { JobCard } from '../components/JobCard.js';
 import { EmptyState, LoadingState, ErrorState } from '../components/EmptyState.js';
+import { Icon } from '../components/Icon.js';
 
 export const DashboardPage = async (mount) => {
   const view = html(`
     <section class="page">
-      <h2 class="page__title">🔔 임박한 일정</h2>
+      <h2 class="page__title">${Icon('bell')}<span>임박한 일정</span></h2>
       <div class="list" id="dash-list"></div>
     </section>
   `);

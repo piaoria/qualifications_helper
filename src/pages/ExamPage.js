@@ -4,11 +4,12 @@ import { esc } from '../utils/dom.js';
 import { getCertifications, getExamSchedules } from '../services/certificationService.js';
 import { ExamItem } from '../components/ExamItem.js';
 import { EmptyState, LoadingState, ErrorState } from '../components/EmptyState.js';
+import { Icon } from '../components/Icon.js';
 
 export const ExamPage = async (mount) => {
   const view = html(`
     <section class="page">
-      <h2 class="page__title">🎓 자격증</h2>
+      <h2 class="page__title">${Icon('cap')}<span>자격증</span></h2>
       <div class="chips" id="cert-chips"></div>
       <div class="list" id="exam-list"></div>
     </section>

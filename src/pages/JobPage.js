@@ -3,11 +3,12 @@ import { html } from '../utils/dom.js';
 import { getJobPostings, toggleBookmark, hideJob } from '../services/jobService.js';
 import { JobCard } from '../components/JobCard.js';
 import { EmptyState, LoadingState, ErrorState } from '../components/EmptyState.js';
+import { Icon } from '../components/Icon.js';
 
 export const JobPage = async (mount) => {
   const view = html(`
     <section class="page">
-      <h2 class="page__title">💼 채용 공고</h2>
+      <h2 class="page__title">${Icon('briefcase')}<span>채용 공고</span></h2>
       <div class="list" id="job-list"></div>
     </section>
   `);
