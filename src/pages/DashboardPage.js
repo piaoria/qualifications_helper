@@ -19,7 +19,7 @@ const toItem = (raw) => {
           date: nextMilestone(raw.data)?.date ?? null,
           name: raw.data.certifications?.name ?? '자격증',
           sub: nextMilestone(raw.data)?.label ?? '',
-          suffix: ' 까지',
+          suffix: '까지',
           icon: 'cap',
           tag: '자격증',
           url: null,
