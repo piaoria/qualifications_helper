@@ -4,6 +4,14 @@
 
 ---
 
+## [2026-06-17] — CI 액션 버전 갱신
+
+### chore
+- GitHub Actions Node20 경고 대응: `checkout@v4→v5`, `setup-node@v4→v5`(collect/deploy)
+- 수집 스크립트 런타임 Node `20 → 22`(LTS)
+
+---
+
 ## [2026-06-17] — ADsP/DAsP 일정 + 달력 UI 개선
 
 ### feat
