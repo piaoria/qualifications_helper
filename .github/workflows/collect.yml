@@ -5,9 +5,6 @@ on:
   schedule:
     - cron: '0 21 * * *'
   workflow_dispatch:
-  # 임시: 수동일정 반영 테스트 (확인 후 제거)
-  push:
-    branches: [master]
 
 jobs:
   collect:
