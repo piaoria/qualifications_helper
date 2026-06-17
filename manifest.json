@@ -1,6 +1,6 @@
 {
-  "name": "취준 일정 헬퍼",
-  "short_name": "취준헬퍼",
+  "name": "취준이",
+  "short_name": "취준이",
   "description": "채용공고 마감 + 자격증 시험 일정 통합 관리",
   "start_url": "./index.html",
   "scope": "./",
@@ -13,13 +13,13 @@
       "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }

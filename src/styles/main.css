@@ -5,6 +5,8 @@
    ========================================================= */
 
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+/* 로고 전용 한글 도트(픽셀) 폰트 — 갈무리 */
+@import url("https://cdn.jsdelivr.net/gh/quiple/galmuri/dist/Galmuri11.css");
 
 /* =========================================================
    🎨 메인 컬러 — 취향 바뀌면 여기 --brand 한 줄만 바꾸세요.
@@ -72,7 +74,13 @@ body {
   height: 32px;
   image-rendering: pixelated;   /* 도트 감성 유지 */
 }
-.app__logo { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; }
+.app__logo {
+  font-family: "Galmuri11", var(--font);   /* 도트 픽셀 폰트로 로고 찍기 */
+  font-size: 20px;
+  color: var(--brand-strong);
+  letter-spacing: 0.04em;
+  image-rendering: pixelated;
+}
 
 /* ===== 하단 네비게이션 ===== */
 .app__nav {
