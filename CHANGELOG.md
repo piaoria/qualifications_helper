@@ -11,8 +11,14 @@
 - 빌드 없는 정적 사이트 → 루트 전체 업로드
 - 모든 경로 상대경로라 서브경로(/qualifications_helper/)에서도 동작
 
-### 필요 (1회 수동)
-- 저장소 Settings → Pages → Source = "GitHub Actions" 설정
+### 필요 (1회 수동) — 완료
+- 저장소 public 전환 (private는 Pages 유료)
+- Settings → Pages → Source = "GitHub Actions"
+- Settings → Actions → Workflow permissions = Read and write
+
+### 배포 완료
+- 라이브: https://piaoria.github.io/qualifications_helper/
+- index/JS/CSS/manifest 전부 정상 로드 확인
 
 ---
 
