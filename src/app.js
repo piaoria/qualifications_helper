@@ -25,3 +25,12 @@ tabs.forEach((tab) =>
 
 // 초기 화면
 navigate('dashboard');
+
+// Service Worker 등록 (PWA 오프라인/설치)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch((err) =>
+      console.error('SW 등록 실패:', err)
+    );
+  });
+}

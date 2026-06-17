@@ -4,6 +4,20 @@
 
 ---
 
+## [2026-06-17] — PWA 완성 (오프라인 + 설치)
+
+### feat
+- `sw.js`: Service Worker (앱 셸 캐시, Supabase는 네트워크 우선)
+- `src/app.js`: Service Worker 등록 추가
+- `icons/icon-192.png`, `icon-512.png`: 앱 아이콘 생성
+- `tools/generate-icons.mjs`: 의존성 없는 아이콘 생성기 (Node zlib)
+- `manifest.json`: 아이콘 purpose "any maskable" 추가
+
+### 결과
+- 이제 "홈 화면에 추가" 설치 가능 (오프라인 동작)
+
+---
+
 ## [2026-06-17] — GitHub Pages 배포 설정
 
 ### ci
