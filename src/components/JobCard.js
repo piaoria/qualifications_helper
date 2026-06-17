@@ -12,7 +12,7 @@ export const JobCard = (job, { onBookmark, onHide, onPin } = {}) => {
       <header class="card__head">
         <h3 class="card__title">${esc(job.company_name)}</h3>
         <div class="card__dday">
-          <button class="pin ${job._pinned ? 'pin--on' : ''}" data-pin aria-label="고정">${Icon('pin', { size: 15, fill: job._pinned })}</button>
+          <button class="pin ${job._pinned ? 'pin--on' : ''}" data-pin>${job._pinned ? '고정됨' : '고정'}</button>
           ${DdayBadge(job.due_date)}
         </div>
       </header>

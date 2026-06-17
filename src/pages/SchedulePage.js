@@ -69,7 +69,7 @@ export const SchedulePage = async (mount) => {
           <header class="card__head">
             <h3 class="card__title">${esc(name)}</h3>
             <div class="card__dday">
-              <button class="pin ${pinned ? 'pin--on' : ''}" data-pin aria-label="고정">${Icon('pin', { size: 15, fill: pinned })}</button>
+              <button class="pin ${pinned ? 'pin--on' : ''}" data-pin>${pinned ? '고정됨' : '고정'}</button>
               ${dday}
             </div>
           </header>

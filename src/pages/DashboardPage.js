@@ -45,7 +45,7 @@ const Hero = (it, onPin) => {
     <div class="hero__info">
       <div class="hero__tagrow">
         <span class="hero__tag">${Icon(it.icon, { size: 14 })}<span>${it.tag}</span></span>
-        <button class="pin ${it._pinned ? 'pin--on' : ''}" data-pin aria-label="고정">${Icon('pin', { size: 15, fill: it._pinned })}</button>
+        <button class="pin ${it._pinned ? 'pin--on' : ''}" data-pin>${it._pinned ? '고정됨' : '고정'}</button>
       </div>
       <h3 class="hero__title">${esc(it.name)}</h3>
       <p class="hero__sub">${esc(it.sub)}${it.sub ? it.suffix : ''}</p>
@@ -69,7 +69,7 @@ const Row = (it, onPin) => {
       <span class="up__title">${esc(it.name)}</span>
       <span class="up__sub">${esc(it.sub)}</span>
     </div>
-    <button class="pin ${it._pinned ? 'pin--on' : ''}" data-pin aria-label="고정">${Icon('pin', { size: 14, fill: it._pinned })}</button>
+    <button class="pin ${it._pinned ? 'pin--on' : ''}" data-pin>${it._pinned ? '고정됨' : '고정'}</button>
     ${DdayBadge(it.date)}`;
   const cls = `up ${it._pinned ? 'up--pinned' : ''}`;
   const el = it.url

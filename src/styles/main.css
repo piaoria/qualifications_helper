@@ -272,28 +272,29 @@ body {
 .card__dday { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .card__next { font-size: 11px; font-weight: 600; color: var(--muted); }
 
-/* 고정(핀) 버튼 — 테두리 없는 아이콘, 터치 영역 확보 */
+/* 고정 토글 칩 — 아이콘 대신 명확한 라벨 */
 .pin {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 11px;
   flex-shrink: 0;
-  border: none;
-  border-radius: 50%;
-  background: none;
-  color: color-mix(in srgb, var(--muted) 60%, transparent);
+  white-space: nowrap;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--muted);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: color 0.12s, background 0.12s;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
-.pin:active { background: color-mix(in srgb, var(--ink) 7%, transparent); }
-.pin--on { color: var(--brand); }
-/* 켜지면 압정이 비스듬히 '꽂힌' 느낌 */
-.pin--on svg { transform: rotate(-28deg); }
+.pin--on {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
 
-/* 고정된 항목 — 왼쪽 바 대신 따뜻한 톤 + 테두리로 부드럽게 */
+/* 고정된 항목 — 따뜻한 톤 + 테두리 */
 .card--pinned,
 .up--pinned {
   background: color-mix(in srgb, var(--brand) 7%, var(--surface));
