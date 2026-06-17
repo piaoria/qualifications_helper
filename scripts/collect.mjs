@@ -61,6 +61,50 @@ const norm = (s) => (s || '').replace(/\s/g, '');
 // ============================================================
 // 1. 큐넷 — 국가자격 시험일정
 // ============================================================
+// 큐넷(인력공단) API에 없는 별도 시행 종목의 2026 일정 (직접 입력).
+// 출처: 데이터자격검정 / KCA 공고 기준. 연 1회 갱신 필요.
+const MANUAL_SCHEDULES = {
+  빅데이터분석기사: [
+    {
+      round: '2026년 제12회', year: 2026,
+      written_apply_start: '2026-03-03', written_apply_end: '2026-03-09',
+      written_exam_start: '2026-04-04', written_result_date: '2026-04-24',
+      practical_apply_start: '2026-05-18', practical_apply_end: '2026-05-22',
+      practical_exam_start: '2026-06-20', final_result_date: '2026-07-10',
+    },
+    {
+      round: '2026년 제13회', year: 2026,
+      written_apply_start: '2026-08-03', written_apply_end: '2026-08-07',
+      written_exam_start: '2026-09-05', written_result_date: '2026-09-23',
+      practical_apply_start: '2026-10-26', practical_apply_end: '2026-10-30',
+      practical_exam_start: '2026-11-28', final_result_date: '2026-12-18',
+    },
+  ],
+  정보보안기사: [
+    {
+      round: '2026년 제1회', year: 2026,
+      written_apply_start: '2026-01-26', written_apply_end: '2026-01-29',
+      written_exam_start: '2026-02-09', written_exam_end: '2026-03-06', written_result_date: '2026-03-13',
+      practical_apply_start: '2026-03-16', practical_apply_end: '2026-03-19',
+      practical_exam_start: '2026-04-11', practical_exam_end: '2026-04-26', final_result_date: '2026-05-08',
+    },
+    {
+      round: '2026년 제2회', year: 2026,
+      written_apply_start: '2026-05-11', written_apply_end: '2026-05-14',
+      written_exam_start: '2026-05-22', written_exam_end: '2026-06-15', written_result_date: '2026-06-19',
+      practical_apply_start: '2026-06-22', practical_apply_end: '2026-06-25',
+      practical_exam_start: '2026-07-25', practical_exam_end: '2026-08-09', final_result_date: '2026-08-28',
+    },
+    {
+      round: '2026년 제4회', year: 2026,
+      written_apply_start: '2026-08-31', written_apply_end: '2026-09-03',
+      written_exam_start: '2026-09-14', written_exam_end: '2026-10-08', written_result_date: '2026-10-16',
+      practical_apply_start: '2026-10-19', practical_apply_end: '2026-10-22',
+      practical_exam_start: '2026-11-14', practical_exam_end: '2026-11-29', final_result_date: '2026-12-18',
+    },
+  ],
+};
+
 const collectQnet = async () => {
   if (!DATA_GO_KR_KEY) {
     console.log('DATA_GO_KR_KEY 없음 → 큐넷 수집 건너뜀');
@@ -107,30 +151,42 @@ const collectQnet = async () => {
     return m ? m[1] : '';
   };
 
-  // 종목의 등급(category)과 일치하는 일정을 매칭
+  const now = new Date().toISOString();
   const rows = [];
+  const manualCertIds = [];
+
   for (const cert of certs) {
-    const grade = cert.category || '기사';
-    const matched = items.filter((it) => gradeOf(it.description) === grade);
-    for (const it of matched) {
-      const round = it.description || `${it.implYy} ${it.implSeq}회`;
-      rows.push({
-        certification_id: cert.id,
-        round,
-        year: Number(it.implYy) || null,
-        written_apply_start: toDate(it.docRegStartDt),
-        written_apply_end: toDate(it.docRegEndDt),
-        written_exam_start: toDate(it.docExamStartDt),
-        written_exam_end: toDate(it.docExamEndDt),
-        written_result_date: toDate(it.docPassDt),
-        practical_apply_start: toDate(it.pracRegStartDt),
-        practical_apply_end: toDate(it.pracRegEndDt),
-        practical_exam_start: toDate(it.pracExamStartDt),
-        practical_exam_end: toDate(it.pracExamEndDt),
-        final_result_date: toDate(it.pracPassDt),
-        raw: it,
-        fetched_at: new Date().toISOString(),
-      });
+    const manual = MANUAL_SCHEDULES[cert.name];
+    if (manual) {
+      // 큐넷 API에 없는 종목(별도 시행) → 직접 입력한 일정 사용
+      manualCertIds.push(cert.id);
+      for (const m of manual) {
+        rows.push({ certification_id: cert.id, source: 'manual', raw: { manual: true }, fetched_at: now, ...m });
+      }
+    } else {
+      // 정기검정 따르는 종목(예: 정보처리기사) → 큐넷 등급 매칭
+      const grade = cert.category || '기사';
+      const matched = items.filter((it) => gradeOf(it.description) === grade);
+      for (const it of matched) {
+        rows.push({
+          certification_id: cert.id,
+          source: 'qnet',
+          round: it.description || `${it.implYy} ${it.implSeq}회`,
+          year: Number(it.implYy) || null,
+          written_apply_start: toDate(it.docRegStartDt),
+          written_apply_end: toDate(it.docRegEndDt),
+          written_exam_start: toDate(it.docExamStartDt),
+          written_exam_end: toDate(it.docExamEndDt),
+          written_result_date: toDate(it.docPassDt),
+          practical_apply_start: toDate(it.pracRegStartDt),
+          practical_apply_end: toDate(it.pracRegEndDt),
+          practical_exam_start: toDate(it.pracExamStartDt),
+          practical_exam_end: toDate(it.pracExamEndDt),
+          final_result_date: toDate(it.pracPassDt),
+          raw: it,
+          fetched_at: now,
+        });
+      }
     }
   }
 
@@ -139,8 +195,18 @@ const collectQnet = async () => {
   for (const r of rows) seen.set(`${r.certification_id}|${r.round}`, r);
   const deduped = [...seen.values()];
 
+  // 수동 종목에 과거 잘못 들어간 큐넷(정기 기사) 행 제거
+  if (!dry) {
+    for (const id of manualCertIds) {
+      await sb(`exam_schedules?certification_id=eq.${id}&source=eq.qnet`, {
+        method: 'DELETE',
+        headers: { Prefer: 'return=minimal' },
+      }).catch(() => {});
+    }
+  }
+
   const n = await upsert('exam_schedules', deduped, 'certification_id,round');
-  console.log(`큐넷: ${items.length}건 수신 → ${n}건 저장`);
+  console.log(`큐넷: ${items.length}건 수신 → ${n}건 저장 (수동 ${manualCertIds.length}종목)`);
   await logSync('qnet', 'success', n);
 };
 
