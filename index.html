@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#222222" />
+  <title>취준 일정 헬퍼</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="src/styles/main.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- 헤더 -->
+    <header class="app__header">
+      <h1 class="app__logo">📋 취준 일정 헬퍼</h1>
+    </header>
+
+    <!-- 탭 네비게이션 -->
+    <nav class="app__tabs">
+      <button class="tab tab--active" data-route="dashboard">대시보드</button>
+      <button class="tab" data-route="jobs">공고</button>
+      <button class="tab" data-route="exams">자격증</button>
+    </nav>
+
+    <!-- 페이지 마운트 영역 -->
+    <main id="view" class="app__view"></main>
+
+    <!-- 일정 추가 (FAB) -->
+    <button class="fab" title="일정 추가">＋</button>
+  </div>
+
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>

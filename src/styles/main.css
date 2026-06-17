@@ -1,0 +1,176 @@
+/* =========================================================
+   취준 일정 헬퍼 — 와이어프레임 스타일
+   모바일 퍼스트 (~420px), 그레이스케일 + 점선 박스
+   ========================================================= */
+
+:root {
+  --bg: #f4f4f4;
+  --surface: #ffffff;
+  --ink: #222222;
+  --muted: #777777;
+  --line: #cccccc;
+  --line-dash: #999999;
+  --soon: #d9480f;
+  --far: #555555;
+  --past: #aaaaaa;
+  --radius: 10px;
+  --gap: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.app {
+  max-width: 420px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--bg);
+  position: relative;
+  padding-bottom: 80px;
+}
+
+/* 헤더 */
+.app__header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--ink);
+  color: #fff;
+  padding: 14px 16px;
+}
+.app__logo { font-size: 17px; font-weight: 700; }
+
+/* 탭 */
+.app__tabs {
+  position: sticky;
+  top: 50px;
+  z-index: 10;
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.tab {
+  flex: 1;
+  padding: 12px 0;
+  border: none;
+  background: none;
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.tab--active {
+  color: var(--ink);
+  font-weight: 700;
+  border-bottom-color: var(--ink);
+}
+
+/* 페이지 */
+.app__view { padding: 16px; }
+.page__title { font-size: 15px; margin-bottom: 12px; }
+.list { display: flex; flex-direction: column; gap: var(--gap); }
+
+/* 카드 (와이어프레임 = 점선 박스) */
+.card {
+  background: var(--surface);
+  border: 1px dashed var(--line-dash);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.card__title { font-size: 15px; font-weight: 700; }
+.card__round { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.card__pos { font-size: 14px; margin-bottom: 4px; }
+.card__meta { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.card__due { font-size: 13px; }
+
+/* 시험 날짜 그리드 */
+.card__dates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  font-size: 12px;
+}
+.card__dates dt { color: var(--muted); font-size: 11px; }
+.card__dates dd { font-weight: 600; }
+
+/* D-day 뱃지 */
+.badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+}
+.badge--soon { color: var(--soon); }
+.badge--far  { color: var(--far); }
+.badge--past { color: var(--past); }
+
+/* 카드 액션 */
+.card__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.btn {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  padding: 7px 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn--bookmark[aria-pressed="true"] { border-color: var(--ink); font-weight: 700; }
+
+/* 칩 (자격증 종목) */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.chip {
+  font-size: 12px;
+  padding: 5px 12px;
+  border: 1px solid var(--line-dash);
+  border-radius: 20px;
+  background: var(--surface);
+}
+
+/* 빈 상태 */
+.empty {
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  padding: 40px 0;
+  white-space: pre-line;
+}
+.empty--error { color: var(--soon); }
+
+/* FAB */
+.fab {
+  position: fixed;
+  right: max(16px, calc(50% - 210px + 16px));
+  bottom: 20px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: var(--ink);
+  color: #fff;
+  font-size: 26px;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+}
