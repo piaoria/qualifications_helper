@@ -137,9 +137,12 @@ body {
 .page__title .icon { color: var(--brand); }
 .list { display: flex; flex-direction: column; gap: var(--gap); }
 
-/* ===== 홈 히어로 (가장 임박) ===== */
+/* ===== 홈 히어로 (가장 임박) — 좌: 무엇 / 우: 언제 ===== */
 .hero {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
   text-decoration: none;
   color: inherit;
   background: var(--brand-soft);
@@ -148,29 +151,34 @@ body {
   padding: 16px;
   margin-bottom: 18px;
 }
-.hero__top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
+.hero__info { min-width: 0; }
 .hero__tag {
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  margin-bottom: 7px;
   font-size: 12px;
   font-weight: 700;
   color: var(--brand-strong);
 }
-.hero__dday {
-  font-size: 26px;
+.hero__title {
+  font-size: 18px;
   font-weight: 800;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hero__sub { font-size: 13px; color: var(--muted); }
+.hero__dday {
+  flex-shrink: 0;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
   letter-spacing: -0.02em;
   color: var(--muted);
 }
 .hero__dday--soon { color: var(--brand-strong); }
-.hero__title { font-size: 18px; font-weight: 800; margin-bottom: 3px; }
-.hero__sub { font-size: 13px; color: var(--muted); }
 
 /* ===== 홈 섹션 + compact 행 ===== */
 .dash-sec__title {
@@ -314,20 +322,17 @@ body {
 }
 .tl__group {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
+  flex-direction: column;
+  gap: 7px;
 }
 .tl__group-label {
-  flex-shrink: 0;
-  width: 26px;
-  padding-top: 3px;
   font-size: 11px;
   font-weight: 700;
   color: var(--muted);
+  padding-left: 2px;
 }
 .tl__track {
   display: flex;
-  flex: 1;
 }
 .tl__step {
   flex: 1;

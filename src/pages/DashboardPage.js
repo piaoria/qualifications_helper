@@ -15,6 +15,7 @@ const toItem = (raw) =>
         date: raw.date,
         name: raw.data.certifications?.name ?? '자격증',
         sub: nextMilestone(raw.data)?.label ?? '',
+        suffix: ' 까지',
         icon: 'cap',
         tag: '자격증',
         url: null,
@@ -23,6 +24,7 @@ const toItem = (raw) =>
         date: raw.date,
         name: raw.data.company_name ?? '공고',
         sub: raw.data.position ?? '',
+        suffix: '',
         icon: 'briefcase',
         tag: '공고',
         url: raw.data.url ?? null,
@@ -32,12 +34,12 @@ const toItem = (raw) =>
 const Hero = (it) => {
   const soon = (daysUntil(it.date) ?? 99) <= 3;
   const inner = `
-    <div class="hero__top">
+    <div class="hero__info">
       <span class="hero__tag">${Icon(it.icon, { size: 14 })}<span>${it.tag}</span></span>
-      <span class="hero__dday ${soon ? 'hero__dday--soon' : ''}">${ddayLabel(it.date)}</span>
+      <h3 class="hero__title">${esc(it.name)}</h3>
+      <p class="hero__sub">${esc(it.sub)}${it.sub ? it.suffix : ''}</p>
     </div>
-    <h3 class="hero__title">${esc(it.name)}</h3>
-    <p class="hero__sub">${esc(it.sub)}</p>`;
+    <div class="hero__dday ${soon ? 'hero__dday--soon' : ''}">${ddayLabel(it.date)}</div>`;
   return it.url
     ? html(`<a class="hero" href="${esc(it.url)}" target="_blank" rel="noopener">${inner}</a>`)
     : html(`<article class="hero">${inner}</article>`);
