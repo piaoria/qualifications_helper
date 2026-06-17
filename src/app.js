@@ -1,10 +1,12 @@
 // 앱 진입점 — 탭 라우팅
 import { DashboardPage } from './pages/DashboardPage.js';
+import { CalendarPage } from './pages/CalendarPage.js';
 import { ExamPage } from './pages/ExamPage.js';
 import { JobPage } from './pages/JobPage.js';
 
 const routes = {
   dashboard: DashboardPage,
+  calendar: CalendarPage,
   jobs: JobPage,
   exams: ExamPage,
 };
