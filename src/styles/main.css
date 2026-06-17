@@ -511,3 +511,30 @@ button.chip {
 }
 .ev__label { color: var(--ink); }
 
+/* 달력 범례 + 오늘 버튼 */
+.cal__legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+  font-size: 11px;
+  color: var(--muted);
+}
+.cal__legend .lg { display: inline-flex; align-items: center; gap: 4px; }
+.cal__legend .dot { width: 7px; height: 7px; }
+.cal__today {
+  margin-left: auto;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border: 1px solid var(--brand-line);
+  border-radius: 8px;
+  background: var(--brand-soft);
+  color: var(--brand-strong);
+  cursor: pointer;
+}
+

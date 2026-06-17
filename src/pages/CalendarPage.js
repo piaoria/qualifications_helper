@@ -39,6 +39,7 @@ export const mountCalendar = (root, exams, jobs) => {
       return `<button class="${cls.join(' ')}" data-date="${ds}"><span class="${dcls}">${cell.getDate()}</span><span class="cal__dots">${dots}</span></button>`;
     };
 
+    const selWd = WEEKDAYS[new Date(selected).getDay()];
     const dayEvs = byDate.get(selected) || [];
     const detail = dayEvs.length
       ? dayEvs
@@ -58,12 +59,27 @@ export const mountCalendar = (root, exams, jobs) => {
         </div>
         <div class="cal__grid cal__grid--wd">${weekRow}</div>
         <div class="cal__grid">${cells.map(cellHtml).join('')}</div>
+        <div class="cal__legend">
+          <span class="lg"><i class="dot dot--apply"></i>접수</span>
+          <span class="lg"><i class="dot dot--exam"></i>시험</span>
+          <span class="lg"><i class="dot dot--result"></i>발표</span>
+          <span class="lg"><i class="dot dot--job"></i>마감</span>
+          <button class="cal__today" data-today>오늘</button>
+        </div>
         <div class="cal__detail">
-          <h3 class="cal__detail-title">${selected.replaceAll('-', '.')}</h3>
+          <h3 class="cal__detail-title">${selected.replaceAll('-', '.')} (${selWd})</h3>
           ${detail}
         </div>
       </div>
     `);
+
+    const todayBtn = cal.querySelector('[data-today]');
+    if (todayBtn)
+      todayBtn.addEventListener('click', () => {
+        cur = new Date(today.getFullYear(), today.getMonth(), 1);
+        selected = todayStr;
+        render();
+      });
 
     cal.querySelectorAll('.cal__nav').forEach((btn) =>
       btn.addEventListener('click', () => {

@@ -52,6 +52,23 @@ const logSync = async (source, status, count, error) => {
   }).catch(() => {});
 };
 
+// 자격증 종목이 없으면 추가 (수동 일정 종목 자동 시드). 이미 있으면 무시.
+const ensureCert = async (name) => {
+  const r = await sb(`certifications?select=id&name=eq.${encodeURIComponent(name)}`);
+  const existing = await r.json();
+  if (Array.isArray(existing) && existing.length) return;
+  if (dry) {
+    console.log(`[DRY] certification 추가: ${name}`);
+    return;
+  }
+  await sb('certifications', {
+    method: 'POST',
+    headers: { Prefer: 'return=minimal' },
+    body: JSON.stringify([{ name, is_active: true }]),
+  }).catch((e) => console.log(`certification 추가 실패(${name}): ${e.message}`));
+  console.log(`certification 추가: ${name}`);
+};
+
 // YYYYMMDD → YYYY-MM-DD (빈 값이면 null)
 const toDate = (s) => {
   if (!s || String(s).length < 8) return null;
@@ -105,6 +122,17 @@ const MANUAL_SCHEDULES = {
       practical_exam_start: '2026-11-14', practical_exam_end: '2026-11-29', final_result_date: '2026-12-18',
     },
   ],
+  // 데이터자격검정(dataq.or.kr) — 단일 시험(실기 없음). 출처: 공식 시행일정.
+  ADsP: [
+    { round: '2026년 제48회', year: 2026, written_apply_start: '2026-01-05', written_apply_end: '2026-01-09', written_exam_start: '2026-02-07', written_result_date: '2026-03-06' },
+    { round: '2026년 제49회', year: 2026, written_apply_start: '2026-04-13', written_apply_end: '2026-04-17', written_exam_start: '2026-05-17', written_result_date: '2026-06-05' },
+    { round: '2026년 제50회', year: 2026, written_apply_start: '2026-07-06', written_apply_end: '2026-07-10', written_exam_start: '2026-08-08', written_result_date: '2026-08-28' },
+    { round: '2026년 제51회', year: 2026, written_apply_start: '2026-09-28', written_apply_end: '2026-10-02', written_exam_start: '2026-10-31', written_result_date: '2026-11-20' },
+  ],
+  DAsP: [
+    { round: '2026년 제60회', year: 2026, written_apply_start: '2026-02-09', written_apply_end: '2026-02-13', written_exam_start: '2026-03-21', written_result_date: '2026-04-10' },
+    { round: '2026년 제61회', year: 2026, written_apply_start: '2026-08-14', written_apply_end: '2026-08-21', written_exam_start: '2026-09-19', written_result_date: '2026-10-08' },
+  ],
 };
 
 const collectQnet = async () => {
@@ -112,6 +140,9 @@ const collectQnet = async () => {
     console.log('DATA_GO_KR_KEY 없음 → 큐넷 수집 건너뜀');
     return;
   }
+  // 수동 일정 종목(ADsP/DAsP 등) 자동 시드 후 조회
+  for (const name of Object.keys(MANUAL_SCHEDULES)) await ensureCert(name);
+
   // 추적 종목 조회
   const certRes = await sb('certifications?select=id,name,qnet_code&is_active=eq.true');
   const certs = await certRes.json();
