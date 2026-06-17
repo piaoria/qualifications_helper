@@ -267,6 +267,26 @@ body {
 .card__dday { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .card__next { font-size: 11px; font-weight: 600; color: var(--muted); }
 
+/* 고정(핀) 버튼 */
+.pin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+}
+.pin--on {
+  color: var(--brand-strong);
+  border-color: var(--brand-line);
+  background: var(--brand-soft);
+}
+
 .card__dates {
   display: grid;
   grid-template-columns: 1fr 1fr;

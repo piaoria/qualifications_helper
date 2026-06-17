@@ -6,6 +6,7 @@ import { DdayBadge } from '../components/DdayBadge.js';
 import { CertTimeline } from '../components/CertTimeline.js';
 import { nextMilestone } from '../utils/exam.js';
 import { daysUntil } from '../utils/date.js';
+import { isPinned, togglePin } from '../services/pinService.js';
 import { getExamSchedules } from '../services/certificationService.js';
 import { getJobPostings } from '../services/jobService.js';
 import { mountCalendar } from './CalendarPage.js';
@@ -42,8 +43,11 @@ export const SchedulePage = async (mount) => {
       body.replaceChildren(EmptyState('시험 일정이 아직 없어요'));
       return;
     }
-    // 가장 가까운 다음 단계 순 → 지난(종료) 일정은 맨 아래
+    // 고정 우선 → 가장 가까운 다음 단계 순 → 지난(종료) 일정은 맨 아래
     const sorted = [...exams].sort((a, b) => {
+      const pa = isPinned('exam', a.id);
+      const pb = isPinned('exam', b.id);
+      if (pa !== pb) return pa ? -1 : 1;
       const da = nextMilestone(a);
       const db = nextMilestone(b);
       if (!da && !db) return 0;
@@ -59,15 +63,23 @@ export const SchedulePage = async (mount) => {
       const dday = next
         ? `<span class="card__next">${next.label}</span>${DdayBadge(next.date)}`
         : '<span class="badge badge--past">종료</span>';
+      const pinned = isPinned('exam', e.id);
       const card = html(`
         <article class="card card--exam">
           <header class="card__head">
             <h3 class="card__title">${esc(name)}</h3>
-            <div class="card__dday">${dday}</div>
+            <div class="card__dday">
+              <button class="pin ${pinned ? 'pin--on' : ''}" data-pin aria-label="고정">${Icon('pin', { size: 15, fill: pinned })}</button>
+              ${dday}
+            </div>
           </header>
           <p class="card__round">${esc(e.round || '')}</p>
         </article>
       `);
+      card.querySelector('[data-pin]').addEventListener('click', () => {
+        togglePin('exam', e.id);
+        renderTimeline();
+      });
       card.append(CertTimeline(e));
       list.append(card);
     });

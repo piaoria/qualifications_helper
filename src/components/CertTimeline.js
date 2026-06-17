@@ -2,7 +2,7 @@
 // 날짜로 자동 진행 표시 + 단계를 탭해 합격/불합격 수동 보정.
 import { html } from '../utils/dom.js';
 import { daysUntil, formatDate } from '../utils/date.js';
-import { getProgress, cycleStage } from '../services/progressService.js';
+import { getProgress, toggleStage } from '../services/progressService.js';
 
 // 접수는 마감일, 시험/발표는 해당일 기준 (nextMilestone과 동일 기준)
 const GROUPS = [
@@ -27,13 +27,12 @@ const ORDER = GROUPS.flatMap((g) => g.steps);
 
 const stageState = (exam, step, userStatus) => {
   if (userStatus === 'pass') return 'pass';
-  if (userStatus === 'fail') return 'fail';
   const d = daysUntil(exam[step.dateKey]);
   if (d === null) return 'upcoming';
   return d < 0 ? 'await' : 'future';
 };
 
-const dot = (state, idx) => (state === 'pass' ? '✓' : state === 'fail' ? '✕' : idx + 1);
+const dot = (state, idx) => (state === 'pass' ? '✓' : idx + 1);
 const mmdd = (s) => (s ? formatDate(s).slice(5) : '–');
 
 export const CertTimeline = (exam) => {
@@ -64,14 +63,14 @@ export const CertTimeline = (exam) => {
         const active = step.key === currentKey;
         const node = html(`
           <button class="tl__step tl__step--${state} ${active ? 'tl__step--active' : ''}"
-                  data-stage="${step.key}" title="탭하여 합격/불합격 표시">
+                  data-stage="${step.key}" title="탭하여 합격 표시">
             <span class="tl__dot">${dot(state, i)}</span>
             <span class="tl__label">${step.label}</span>
             <span class="tl__date">${mmdd(exam[step.dateKey])}</span>
           </button>
         `);
         node.addEventListener('click', () => {
-          cycleStage(exam.id, step.key);
+          toggleStage(exam.id, step.key);
           render();
         });
         track.append(node);

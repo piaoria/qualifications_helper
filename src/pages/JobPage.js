@@ -4,6 +4,7 @@ import { getJobPostings, toggleBookmark, hideJob } from '../services/jobService.
 import { JobCard } from '../components/JobCard.js';
 import { EmptyState, LoadingState, ErrorState } from '../components/EmptyState.js';
 import { Icon } from '../components/Icon.js';
+import { isPinned, togglePin } from '../services/pinService.js';
 
 export const JobPage = async (mount) => {
   const view = html(`
@@ -55,7 +56,9 @@ export const JobPage = async (mount) => {
   };
 
   const draw = () => {
-    const jobs = visible();
+    const jobs = visible()
+      .map((j) => ({ ...j, _pinned: isPinned('job', j.id) }))
+      .sort((a, b) => (a._pinned === b._pinned ? 0 : a._pinned ? -1 : 1)); // 고정 우선
     countEl.textContent = `총 ${jobs.length}건`;
     list.replaceChildren();
     if (jobs.length === 0) {
@@ -72,6 +75,10 @@ export const JobPage = async (mount) => {
           onHide: async (id) => {
             await hideJob(id);
             await load();
+          },
+          onPin: (id) => {
+            togglePin('job', id);
+            draw();
           },
         })
       )

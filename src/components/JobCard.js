@@ -4,14 +4,17 @@ import { formatDate } from '../utils/date.js';
 import { DdayBadge } from './DdayBadge.js';
 import { Icon } from './Icon.js';
 
-// job: job_postings 행
-// onBookmark / onHide: (id) => void 콜백
-export const JobCard = (job, { onBookmark, onHide } = {}) => {
+// job: job_postings 행 (+ _pinned 여부)
+// onBookmark / onHide / onPin: (id) => void 콜백
+export const JobCard = (job, { onBookmark, onHide, onPin } = {}) => {
   const el = html(`
     <article class="card card--job">
       <header class="card__head">
         <h3 class="card__title">${esc(job.company_name)}</h3>
-        ${DdayBadge(job.due_date)}
+        <div class="card__dday">
+          <button class="pin ${job._pinned ? 'pin--on' : ''}" data-pin aria-label="고정">${Icon('pin', { size: 15, fill: job._pinned })}</button>
+          ${DdayBadge(job.due_date)}
+        </div>
       </header>
       <p class="card__pos">${esc(job.position)}</p>
       <p class="card__meta">
@@ -39,5 +42,6 @@ export const JobCard = (job, { onBookmark, onHide } = {}) => {
   el.querySelector('.btn--hide').addEventListener('click', () =>
     onHide?.(job.id)
   );
+  el.querySelector('[data-pin]').addEventListener('click', () => onPin?.(job.id));
   return el;
 };

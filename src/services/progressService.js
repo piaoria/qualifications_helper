@@ -15,16 +15,12 @@ const save = (data) => localStorage.setItem(KEY, JSON.stringify(data));
 
 export const getProgress = (scheduleId) => load()[scheduleId] || {};
 
-// 탭할 때마다 미입력 → 합격 → 불합격 → 미입력 순환
-const NEXT = { null: 'pass', pass: 'fail', fail: null };
-
-export const cycleStage = (scheduleId, stageKey) => {
+// 단순 토글: 미입력 ↔ 합격(pass)
+export const toggleStage = (scheduleId, stageKey) => {
   const data = load();
   const cur = (data[scheduleId] || {})[stageKey] || null;
-  const next = NEXT[cur];
   data[scheduleId] = data[scheduleId] || {};
-  if (next === null) delete data[scheduleId][stageKey];
-  else data[scheduleId][stageKey] = next;
+  if (cur === 'pass') delete data[scheduleId][stageKey];
+  else data[scheduleId][stageKey] = 'pass';
   save(data);
-  return next;
 };
