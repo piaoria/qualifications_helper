@@ -152,11 +152,16 @@ body {
   margin-bottom: 18px;
 }
 .hero__info { min-width: 0; }
+.hero__tagrow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 5px;
+}
 .hero__tag {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  margin-bottom: 7px;
   font-size: 12px;
   font-weight: 700;
   color: var(--brand-strong);
@@ -285,10 +290,15 @@ body {
 }
 .pin:active { background: color-mix(in srgb, var(--ink) 7%, transparent); }
 .pin--on { color: var(--brand); }
+/* 켜지면 압정이 비스듬히 '꽂힌' 느낌 */
+.pin--on svg { transform: rotate(-28deg); }
 
-/* 고정된 항목 강조 (왼쪽 코랄 라인) */
-.card--pinned { border-left: 3px solid var(--brand); }
-.up--pinned { border-left: 3px solid var(--brand); }
+/* 고정된 항목 — 왼쪽 바 대신 따뜻한 톤 + 테두리로 부드럽게 */
+.card--pinned,
+.up--pinned {
+  background: color-mix(in srgb, var(--brand) 7%, var(--surface));
+  border-color: var(--brand-line);
+}
 
 .card__dates {
   display: grid;

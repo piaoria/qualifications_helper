@@ -39,18 +39,27 @@ const toItem = (raw) => {
   return it;
 };
 
-const Hero = (it) => {
+const Hero = (it, onPin) => {
   const soon = (daysUntil(it.date) ?? 99) <= 3;
   const inner = `
     <div class="hero__info">
-      <span class="hero__tag">${Icon(it.icon, { size: 14 })}<span>${it.tag}</span></span>
+      <div class="hero__tagrow">
+        <span class="hero__tag">${Icon(it.icon, { size: 14 })}<span>${it.tag}</span></span>
+        <button class="pin ${it._pinned ? 'pin--on' : ''}" data-pin aria-label="고정">${Icon('pin', { size: 15, fill: it._pinned })}</button>
+      </div>
       <h3 class="hero__title">${esc(it.name)}</h3>
       <p class="hero__sub">${esc(it.sub)}${it.sub ? it.suffix : ''}</p>
     </div>
     <div class="hero__dday ${soon ? 'hero__dday--soon' : ''}">${ddayLabel(it.date)}</div>`;
-  return it.url
+  const el = it.url
     ? html(`<a class="hero" href="${esc(it.url)}" target="_blank" rel="noopener">${inner}</a>`)
     : html(`<article class="hero">${inner}</article>`);
+  el.querySelector('[data-pin]').addEventListener('click', (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    onPin(it);
+  });
+  return el;
 };
 
 const Row = (it, onPin) => {
@@ -109,6 +118,18 @@ export const DashboardPage = async (mount) => {
     render();
   };
 
+  const section = (title, items, count) => {
+    const sec = html(`
+      <div class="dash-sec">
+        <h3 class="dash-sec__title">${title}${count ? ` <span class="dash-sec__count">${items.length}</span>` : ''}</h3>
+        <div class="up-list"></div>
+      </div>
+    `);
+    const ul = sec.querySelector('.up-list');
+    items.forEach((it) => ul.append(Row(it, onPin)));
+    return sec;
+  };
+
   const render = () => {
     const all = [
       ...exams.map((e) => ({ type: 'exam', data: e })),
@@ -122,37 +143,20 @@ export const DashboardPage = async (mount) => {
 
     body.replaceChildren();
 
-    if (pinned.length) {
-      const sec = html(`
-        <div class="dash-sec">
-          <h3 class="dash-sec__title">${Icon('pin', { size: 13 })}<span>고정</span></h3>
-          <div class="up-list"></div>
-        </div>
-      `);
-      const ul = sec.querySelector('.up-list');
-      pinned.forEach((it) => ul.append(Row(it, onPin)));
-      body.append(sec);
-    }
-
     if (!pinned.length && !upcoming.length) {
-      body.append(EmptyState('다가오는 일정이 없어요'));
+      body.append(EmptyState('고정하거나 다가오는 일정이 없어요'));
       return;
     }
 
-    if (upcoming.length) {
-      body.append(Hero(upcoming[0]));
+    // 메인 = 내가 고정한 것 우선 (없으면 가장 임박한 것)
+    if (pinned.length) {
+      body.append(Hero(pinned[0], onPin));
+      if (pinned.length > 1) body.append(section('고정', pinned.slice(1)));
+      if (upcoming.length) body.append(section('다가오는 일정', upcoming.slice(0, 6), true));
+    } else {
+      body.append(Hero(upcoming[0], onPin));
       const rest = upcoming.slice(1, 8);
-      if (rest.length) {
-        const sec = html(`
-          <div class="dash-sec">
-            <h3 class="dash-sec__title">다가오는 일정 <span class="dash-sec__count">${rest.length}</span></h3>
-            <div class="up-list"></div>
-          </div>
-        `);
-        const ul = sec.querySelector('.up-list');
-        rest.forEach((it) => ul.append(Row(it, onPin)));
-        body.append(sec);
-      }
+      if (rest.length) body.append(section('다가오는 일정', rest, true));
     }
   };
 
