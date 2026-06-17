@@ -100,13 +100,20 @@ const collectQnet = async () => {
     }
   }
 
-  // 종목명으로 매칭 → exam_schedules 행 생성
+  // 이 API는 등급별(기사/산업기사/기능사) 정기시험 일정만 제공 (종목 구분 없음).
+  // description 예: "국가기술자격 기사 (2026년도 제3회)" → 등급 "기사" 추출
+  const gradeOf = (desc) => {
+    const m = /국가기술자격\s+(\S+?)\s*\(/.exec(desc || '');
+    return m ? m[1] : '';
+  };
+
+  // 종목의 등급(category)과 일치하는 일정을 매칭
   const rows = [];
   for (const cert of certs) {
-    const target = norm(cert.name);
-    const matched = items.filter((it) => norm(it.jmfldnm || it.jmNm || it.qualNm).includes(target));
+    const grade = cert.category || '기사';
+    const matched = items.filter((it) => gradeOf(it.description) === grade);
     for (const it of matched) {
-      const round = `${it.implYy || ''}년 ${it.qualgbNm || '기사'} ${it.implSeq || ''}회`.trim();
+      const round = it.description || `${it.implYy} ${it.implSeq}회`;
       rows.push({
         certification_id: cert.id,
         round,
@@ -129,10 +136,7 @@ const collectQnet = async () => {
 
   const n = await upsert('exam_schedules', rows, 'certification_id,round');
   console.log(`큐넷: ${items.length}건 수신 → ${n}건 저장`);
-  // 임시 진단: 응답 필드명/샘플 종목명 기록
-  const uniq = [...new Set(items.map((it) => it.description))];
-  const debug = `recv=${items.length} uniq=${uniq.length} :: ${uniq.join(' || ')}`.slice(0, 1500);
-  await logSync('qnet', 'success', n, debug);
+  await logSync('qnet', 'success', n);
 };
 
 // ============================================================
