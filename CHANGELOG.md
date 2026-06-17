@@ -4,6 +4,42 @@
 
 ---
 
+## [2026-06-17] — 사람인 공고 수집기 추가
+
+### feat
+- `scripts/collect.mjs`에 **사람인 공식 Open API 수집기**(`collectSaramin`) 추가
+  - `job_filters` 재사용(키워드/지역), **실제 마감일(expiration-date) → due_date 채움**
+  - `SARAMIN_ACCESS_KEY` 없으면 자동 건너뜀(graceful skip)
+  - `source='saramin'`, on_conflict `source,external_id`로 원티드와 분리
+- `collect.yml`에 `SARAMIN_ACCESS_KEY` 시크릿 전달 추가
+
+> ⚠️ 사람인 Open API엔 "대기업/공채" 전용 필터 파라미터가 없음(직무/키워드/지역/마감일 검색).
+> 게시일(posting-date)은 `raw`에 보존 — 카드 표기하려면 `posted_at` 컬럼 추가 고려.
+
+---
+
+## [2026-06-17] — 공고 필터/메타 + 폰 프레임 + 탭 스와이프
+
+### feat
+- **공고 직무 필터**: 데이터 기반 직무 칩(가로 스크롤) + 기존 전체/관심 세그먼트와 조합
+- **공고 메타 표시**: 총 개수(`총 N건`) + 정렬 기준(`최근 등록순`)
+- **카드 등록일**: `fetched_at`을 "등록 YYYY.MM.DD"로 표기, `due_date` 없으면 "상시 채용"
+- **탭 스와이프**: 좌우 제스처로 홈/일정/공고 이동 (가로 제스처만 인식)
+
+### refactor
+- `jobService`: 정렬을 `due_date` → `fetched_at` 최신순 (원티드 공고는 due_date가 NULL)
+
+### style
+- 데스크톱에서 모바일 폭을 '폰처럼' 보이게 양옆 테두리 + 그림자 (480px↑)
+
+### chore
+- SW 캐시 `qh-v7` → `qh-v8`
+
+> ⚠️ 한계: 원티드 목록 API는 게시일을 주지 않아 등록일은 수집시각(`fetched_at`) 기준.
+> 정확한 최초 게시일/등록순을 원하면 `job_postings.created_at`(최초 insert 1회) 컬럼 추가 필요.
+
+---
+
 ## [2026-06-17] — 로고 도트 통일 + 로딩 스켈레톤 + FAB 정리
 
 ### feat

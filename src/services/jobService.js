@@ -1,13 +1,14 @@
 // 채용 공고 데이터 조회 / 상태 변경
 import { supabase } from './supabaseClient.js';
 
-// 공고 목록 (숨김 제외, 마감일 빠른 순)
+// 공고 목록 (숨김 제외, 최근 수집순)
+// WHY: 원티드 공고는 due_date가 전부 NULL(상시)이라 마감일 정렬이 무의미 → fetched_at 최신순.
 export const getJobPostings = async () => {
   const { data, error } = await supabase
     .from('job_postings')
     .select('*')
     .eq('is_hidden', false)
-    .order('due_date', { ascending: true, nullsFirst: false });
+    .order('fetched_at', { ascending: false, nullsFirst: false });
   if (error) throw error;
   return data;
 };

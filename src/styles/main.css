@@ -54,6 +54,15 @@ body {
   min-height: 100vh;
   position: relative;
   padding-bottom: 96px;
+  background: var(--bg);
+  border-left: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+}
+/* 데스크톱: 가운데 모바일 폭을 '폰처럼' 띄워 보이게 (양옆 여백 정리) */
+@media (min-width: 480px) {
+  .app {
+    box-shadow: 0 12px 50px color-mix(in srgb, var(--ink) 16%, transparent);
+  }
 }
 
 /* ===== 헤더 ===== */
@@ -273,6 +282,47 @@ body {
   background: var(--brand-soft);
   color: var(--brand-strong);
 }
+/* 직무 필터 칩 (버튼) */
+button.chip {
+  font-family: var(--font);
+  cursor: pointer;
+}
+.chip--active {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+/* 가로 스크롤 칩 줄 */
+.chips--scroll {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  margin-bottom: 10px;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.chips--scroll::-webkit-scrollbar { display: none; }
+.chips--scroll .chip { flex: 0 0 auto; }
+
+/* 공고 메타 (개수 + 정렬) */
+.job-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.job-count { font-weight: 700; color: var(--ink); }
+.job-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.job-sort .icon { color: var(--brand); }
+
+/* 공고 등록일 */
+.card__posted { font-size: 11px; color: var(--muted); margin-top: 4px; }
 
 /* ===== 빈 상태 ===== */
 .empty {

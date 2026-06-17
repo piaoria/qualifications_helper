@@ -3,12 +3,14 @@
 //
 // 필요 env:
 //   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, DATA_GO_KR_KEY
+//   SARAMIN_ACCESS_KEY (선택: 있으면 사람인 공고도 수집)
 //   DRY_RUN=1 이면 DB 쓰기 없이 콘솔 출력만 (로컬 테스트용)
 
 const {
   SUPABASE_URL,
   SUPABASE_SERVICE_ROLE_KEY,
   DATA_GO_KR_KEY,
+  SARAMIN_ACCESS_KEY,
   DRY_RUN,
 } = process.env;
 
@@ -281,6 +283,67 @@ const collectWanted = async () => {
 };
 
 // ============================================================
+// 사람인 채용공고 (공식 Open API) — 실제 마감일/게시일 제공
+// 키워드/지역은 job_filters 재사용. SARAMIN_ACCESS_KEY 없으면 건너뜀.
+const SARAMIN_API = 'https://oapi.saramin.co.kr/job-search';
+
+const collectSaramin = async () => {
+  if (!SARAMIN_ACCESS_KEY) {
+    console.log('사람인: SARAMIN_ACCESS_KEY 없음 → 건너뜀');
+    return;
+  }
+  const filterRes = await sb('job_filters?select=*&is_active=eq.true');
+  const filters = await filterRes.json();
+
+  let total = 0;
+  for (const f of filters) {
+    const kw = (f.keywords_include?.length ? f.keywords_include : [f.job_category])
+      .filter(Boolean)
+      .join(','); // 사람인 keywords 콤마 = OR
+    const params = new URLSearchParams({
+      'access-key': SARAMIN_ACCESS_KEY,
+      keywords: kw,
+      sort: 'pd', // 게시일 역순(최신)
+      count: '110',
+      start: '0',
+    });
+    const res = await fetch(`${SARAMIN_API}?${params}`, { headers: { Accept: 'application/json' } });
+    if (!res.ok) {
+      console.log(`사람인[${f.name}] 응답 실패 ${res.status}`);
+      continue;
+    }
+    const json = await res.json();
+    const list = json?.jobs?.job ?? [];
+
+    const rows = [];
+    for (const it of list) {
+      const title = it.position?.title || '';
+      if ((f.keywords_exclude || []).some((k) => title.includes(k))) continue;
+      const loc = it.position?.location?.name || '';
+      if (f.location && !loc.includes(f.location)) continue;
+
+      rows.push({
+        source: 'saramin',
+        external_id: String(it.id),
+        company_name: it.company?.detail?.name ?? null,
+        position: title,
+        job_category: it.position?.['job-mid-code']?.name ?? f.job_category,
+        experience: it.position?.['experience-level']?.name ?? null,
+        location: loc || null,
+        url: it.url ?? null,
+        due_date: (it['expiration-date'] || '').slice(0, 10) || null, // 실제 마감일
+        filter_id: f.id,
+        raw: it, // posting-date 등 원본 보존
+        fetched_at: new Date().toISOString(),
+      });
+    }
+    total += await upsert('job_postings', rows, 'source,external_id');
+    console.log(`사람인[${f.name}]: ${list.length}건 수신 → ${rows.length}건 매칭`);
+  }
+  await logSync('saramin', 'success', total);
+};
+
+// ============================================================
 const main = async () => {
   console.log(`수집 시작 (dry=${dry})`);
   try {
@@ -294,6 +357,12 @@ const main = async () => {
   } catch (e) {
     console.error('원티드 실패:', e.message);
     await logSync('wanted', 'error', 0, e.message);
+  }
+  try {
+    await collectSaramin();
+  } catch (e) {
+    console.error('사람인 실패:', e.message);
+    await logSync('saramin', 'error', 0, e.message);
   }
   console.log('수집 종료');
 };

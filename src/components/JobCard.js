@@ -19,7 +19,8 @@ export const JobCard = (job, { onBookmark, onHide } = {}) => {
         <span>${esc(job.experience ?? '-')}</span> ·
         <span>${esc(job.location ?? '-')}</span>
       </p>
-      <p class="card__due">마감: ${formatDate(job.due_date)}</p>
+      <p class="card__due">${job.due_date ? `마감: ${formatDate(job.due_date)}` : '상시 채용'}</p>
+      <p class="card__posted">등록 ${formatDate(job.fetched_at)}</p>
       <footer class="card__actions">
         <button class="btn btn--bookmark" aria-pressed="${job.is_bookmarked}">
           ${Icon('bookmark', { size: 15, fill: job.is_bookmarked })}<span>관심</span>
