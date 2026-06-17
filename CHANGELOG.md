@@ -4,6 +4,29 @@
 
 ---
 
+## [2026-06-17] — 데이터 수집 스크립트 연결
+
+### feat
+- `scripts/collect.mjs`: 큐넷(자격증 일정) + 원티드(공고) 수집기
+  - service_role로 Supabase upsert, DRY_RUN 로컬 테스트 모드
+- `.github/workflows/collect.yml`: 매일 06:00 KST 자동 수집 + 수동 실행
+
+### 설계 결정 (변경)
+- **스케줄러: Supabase pg_cron → GitHub Actions cron** (Edge Function 배포 불필요, 퍼블릭 repo 무료)
+
+### API 스펙 확인
+- 큐넷: `apis.data.go.kr/B490007/qualExamSchd/getQualExamSchdList` (implYy, qualgbCd=T, jmCd / doc·prac 일자 필드)
+- 원티드: `wanted.co.kr/api/chaos/navigation/v1/results` (job_group_id=518, job_ids=669=Frontend)
+
+### 검증
+- 원티드 dry-run 통과: 100건 수신 → 49건 매칭 (프론트·서울·경력≤3)
+
+### 필요 (1회 수동)
+- GitHub Secret 2개: `SUPABASE_SERVICE_ROLE_KEY`, `DATA_GO_KR_KEY`
+- data.go.kr "국가자격 시험일정 조회" 활용신청 → 키 발급
+
+---
+
 ## [2026-06-17] — 마스코트 단순화 + 아이콘화 (이모지 제거)
 
 ### feat
