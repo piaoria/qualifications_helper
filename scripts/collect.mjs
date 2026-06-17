@@ -74,27 +74,30 @@ const collectQnet = async () => {
   // 키 형태 자동 판별: 이미 인코딩된 키(% 포함)면 그대로, 아니면 인코딩
   const keyParam = DATA_GO_KR_KEY.includes('%') ? DATA_GO_KR_KEY : encodeURIComponent(DATA_GO_KR_KEY);
 
-  // 올해+내년 일정 수집
+  // 올해+내년 일정 수집 (numOfRows 최대 50 → 페이지네이션)
+  const PAGE = 50;
   let items = [];
-  let rawSnippet = '';
   for (const yy of [year, year + 1]) {
-    const url =
-      `http://apis.data.go.kr/B490007/qualExamSchd/getQualExamSchdList` +
-      `?serviceKey=${keyParam}` +
-      `&dataFormat=json&numOfRows=500&pageNo=1&implYy=${yy}&qualgbCd=T`;
-    const res = await fetch(url);
-    const text = await res.text();
-    if (!rawSnippet) rawSnippet = text.slice(0, 400);
-    // 인증 전이면 JSON이 아니라 "Unauthorized" 같은 텍스트가 옴
-    let json;
-    try {
-      json = JSON.parse(text);
-    } catch {
-      throw new Error(`큐넷 응답이 JSON 아님(키 미인증 가능): "${text.slice(0, 80)}"`);
+    for (let pageNo = 1; pageNo <= 40; pageNo++) {
+      const url =
+        `http://apis.data.go.kr/B490007/qualExamSchd/getQualExamSchdList` +
+        `?serviceKey=${keyParam}` +
+        `&dataFormat=json&numOfRows=${PAGE}&pageNo=${pageNo}&implYy=${yy}&qualgbCd=T`;
+      const res = await fetch(url);
+      const text = await res.text();
+      let json;
+      try {
+        json = JSON.parse(text);
+      } catch {
+        throw new Error(`큐넷 응답이 JSON 아님(키 미인증 가능): "${text.slice(0, 80)}"`);
+      }
+      // 응답 구조: { header, body: { items: [...] | { item: [...] } } }
+      const body = json?.body ?? json?.response?.body;
+      const got = body?.items?.item ?? body?.items ?? [];
+      const arr = Array.isArray(got) ? got : got ? [got] : [];
+      items.push(...arr);
+      if (arr.length < PAGE) break; // 마지막 페이지
     }
-    const body = json?.response?.body;
-    const got = body?.items?.item ?? body?.items ?? [];
-    items.push(...(Array.isArray(got) ? got : [got]));
   }
 
   // 종목명으로 매칭 → exam_schedules 행 생성
@@ -128,7 +131,7 @@ const collectQnet = async () => {
   console.log(`큐넷: ${items.length}건 수신 → ${n}건 저장`);
   // 임시 진단: 응답 필드명/샘플 종목명 기록
   const sample = items[0] || {};
-  const debug = `recv=${items.length} matched=${rows.length} keys=[${Object.keys(sample).join('|')}] raw=${rawSnippet}`;
+  const debug = `recv=${items.length} matched=${rows.length} keys=[${Object.keys(sample).join('|')}] names=[${items.slice(0, 6).map((it) => it.jmfldnm || it.jmNm || it.qualNm || '').join(',')}]`;
   await logSync('qnet', 'success', n, debug);
 };
 
