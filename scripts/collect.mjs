@@ -193,7 +193,14 @@ const collectQnet = async () => {
   // (certification_id, round) 중복 제거 — API가 같은 회차를 여러 번 반환
   const seen = new Map();
   for (const r of rows) seen.set(`${r.certification_id}|${r.round}`, r);
-  const deduped = [...seen.values()];
+  // 모든 행을 동일 컬럼 셋으로 정규화 (PostgREST 일괄 upsert는 키 구성이 같아야 함)
+  const COLS = [
+    'certification_id', 'source', 'round', 'year',
+    'written_apply_start', 'written_apply_end', 'written_exam_start', 'written_exam_end', 'written_result_date',
+    'practical_apply_start', 'practical_apply_end', 'practical_exam_start', 'practical_exam_end', 'final_result_date',
+    'raw', 'fetched_at',
+  ];
+  const deduped = [...seen.values()].map((r) => Object.fromEntries(COLS.map((c) => [c, r[c] ?? null])));
 
   // 수동 종목에 과거 잘못 들어간 큐넷(정기 기사) 행 제거
   if (!dry) {
