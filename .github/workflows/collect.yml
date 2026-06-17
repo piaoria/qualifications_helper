@@ -5,6 +5,10 @@ on:
   schedule:
     - cron: '0 21 * * *'
   workflow_dispatch:
+  # 임시: 첫 수집 테스트용 (확인 후 제거)
+  push:
+    paths:
+      - .github/workflows/collect.yml
 
 jobs:
   collect:
