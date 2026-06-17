@@ -76,6 +76,7 @@ const collectQnet = async () => {
 
   // 올해+내년 일정 수집
   let items = [];
+  let rawSnippet = '';
   for (const yy of [year, year + 1]) {
     const url =
       `http://apis.data.go.kr/B490007/qualExamSchd/getQualExamSchdList` +
@@ -83,6 +84,7 @@ const collectQnet = async () => {
       `&dataFormat=json&numOfRows=500&pageNo=1&implYy=${yy}&qualgbCd=T`;
     const res = await fetch(url);
     const text = await res.text();
+    if (!rawSnippet) rawSnippet = text.slice(0, 400);
     // 인증 전이면 JSON이 아니라 "Unauthorized" 같은 텍스트가 옴
     let json;
     try {
@@ -126,7 +128,7 @@ const collectQnet = async () => {
   console.log(`큐넷: ${items.length}건 수신 → ${n}건 저장`);
   // 임시 진단: 응답 필드명/샘플 종목명 기록
   const sample = items[0] || {};
-  const debug = `recv=${items.length} matched=${rows.length} keys=[${Object.keys(sample).join('|')}] names=[${items.slice(0, 5).map((it) => it.jmfldnm || it.jmNm || it.qualNm || it.jmNm || '').join(',')}]`;
+  const debug = `recv=${items.length} matched=${rows.length} keys=[${Object.keys(sample).join('|')}] raw=${rawSnippet}`;
   await logSync('qnet', 'success', n, debug);
 };
 
