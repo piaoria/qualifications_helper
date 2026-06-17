@@ -4,6 +4,21 @@
 
 ---
 
+## [2026-06-17] — Supabase 프론트 연동
+
+### feat
+- `src/config.js`: Supabase URL + anon key
+- `src/services/supabaseClient.js`: supabase-js 클라이언트 (CDN ESM)
+- `src/services/certificationService.js`: 자격증/시험일정 조회
+- `src/services/jobService.js`: 공고 조회 + 북마크/숨김 토글
+
+### 확인
+- Supabase 프로젝트 생성 (region: ap-northeast-2)
+- schema.sql 실행 완료 → 테이블 5종 + 초기 자격증 3종목 생성
+- anon key 연결 테스트 통과 (REST 읽기 OK)
+
+---
+
 ## [2026-06-16] — DB 스키마 & 아키텍처 확정
 
 ### feat
