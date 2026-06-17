@@ -134,7 +134,12 @@ const collectQnet = async () => {
     }
   }
 
-  const n = await upsert('exam_schedules', rows, 'certification_id,round');
+  // (certification_id, round) 중복 제거 — API가 같은 회차를 여러 번 반환
+  const seen = new Map();
+  for (const r of rows) seen.set(`${r.certification_id}|${r.round}`, r);
+  const deduped = [...seen.values()];
+
+  const n = await upsert('exam_schedules', deduped, 'certification_id,round');
   console.log(`큐넷: ${items.length}건 수신 → ${n}건 저장`);
   await logSync('qnet', 'success', n);
 };
