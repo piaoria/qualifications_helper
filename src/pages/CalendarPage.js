@@ -1,35 +1,13 @@
-// 달력 탭 — 월별 일정 + 날짜별 상세
+// 달력 렌더 — 월별 일정 + 날짜별 상세
+// 이미 불러온 exams/jobs를 받아 root에 달력을 그린다 (일정 페이지에서 재사용).
 import { html, esc } from '../utils/dom.js';
 import { ymd, buildMonthGrid, examEvents, jobEvents, groupByDate } from '../utils/calendar.js';
-import { getExamSchedules } from '../services/certificationService.js';
-import { getJobPostings } from '../services/jobService.js';
 import { Icon } from '../components/Icon.js';
-import { LoadingState, ErrorState } from '../components/EmptyState.js';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 const TYPE_LABEL = { exam: '시험', apply: '접수', result: '발표', job: '마감' };
 
-export const CalendarPage = async (mount) => {
-  const view = html(`
-    <section class="page">
-      <h2 class="page__title">${Icon('calendar')}<span>달력</span></h2>
-      <div id="cal-root"></div>
-    </section>
-  `);
-  const root = view.querySelector('#cal-root');
-  root.append(LoadingState());
-  mount.replaceChildren(view);
-
-  let exams = [];
-  let jobs = [];
-  try {
-    [exams, jobs] = await Promise.all([getExamSchedules(), getJobPostings()]);
-  } catch (err) {
-    root.replaceChildren(ErrorState('데이터를 불러오지 못했어요'));
-    console.error(err);
-    return;
-  }
-
+export const mountCalendar = (root, exams, jobs) => {
   const byDate = groupByDate([...examEvents(exams), ...jobEvents(jobs)]);
   const today = new Date();
   today.setHours(0, 0, 0, 0);

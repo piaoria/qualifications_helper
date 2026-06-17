@@ -4,6 +4,25 @@
 
 ---
 
+## [2026-06-17] — 하단 nav + 자격증 단계 타임라인 (사용성 우선)
+
+### feat
+- **하단 네비게이션**: 상단 텍스트 탭 → 하단 아이콘 nav (홈/일정/공고 3개)
+  - 달력·자격증을 '일정' 하나로 통합
+- **자격증 단계 타임라인**: 필기지원 → 필기합격 → 실기지원 → 실기합격
+  - 날짜로 자동 진행 표시 + 단계 탭하여 합격/불합격 수동 보정
+  - `src/components/CertTimeline.js`, `src/services/progressService.js`(localStorage)
+- **일정 페이지**: `src/pages/SchedulePage.js` — 세그먼트(타임라인/달력) 전환
+
+### refactor
+- `CalendarPage.js`: 달력 렌더를 `mountCalendar(root, exams, jobs)`로 추출해 재사용
+- `ExamPage.js` 제거 (자격증 탭 → 일정 타임라인으로 흡수)
+
+### chore
+- SW 캐시 `qh-v4` → `qh-v5`
+
+---
+
 ## [2026-06-17] — 달력 + UX 개선
 
 ### feat

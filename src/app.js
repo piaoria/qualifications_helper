@@ -1,22 +1,20 @@
-// 앱 진입점 — 탭 라우팅
+// 앱 진입점 — 하단 nav 라우팅
 import { DashboardPage } from './pages/DashboardPage.js';
-import { CalendarPage } from './pages/CalendarPage.js';
-import { ExamPage } from './pages/ExamPage.js';
+import { SchedulePage } from './pages/SchedulePage.js';
 import { JobPage } from './pages/JobPage.js';
 
 const routes = {
   dashboard: DashboardPage,
-  calendar: CalendarPage,
+  schedule: SchedulePage,
   jobs: JobPage,
-  exams: ExamPage,
 };
 
 const view = document.getElementById('view');
-const tabs = document.querySelectorAll('.tab');
+const tabs = document.querySelectorAll('.navbtn');
 
 const navigate = (name) => {
   tabs.forEach((t) =>
-    t.classList.toggle('tab--active', t.dataset.route === name)
+    t.classList.toggle('navbtn--active', t.dataset.route === name)
   );
   (routes[name] ?? DashboardPage)(view);
 };

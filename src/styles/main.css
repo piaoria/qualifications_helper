@@ -51,7 +51,7 @@ body {
   margin: 0 auto;
   min-height: 100vh;
   position: relative;
-  padding-bottom: 88px;
+  padding-bottom: 96px;
 }
 
 /* ===== 헤더 ===== */
@@ -74,35 +74,38 @@ body {
 }
 .app__logo { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; }
 
-/* ===== 탭 ===== */
-.app__tabs {
-  position: sticky;
-  top: 57px;
-  z-index: 10;
+/* ===== 하단 네비게이션 ===== */
+.app__nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  width: 100%;
+  max-width: 420px;
   display: flex;
-  gap: 6px;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: blur(8px);
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--line);
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
 }
-.tab {
+.navbtn {
   flex: 1;
-  padding: 9px 0;
-  border: 1px solid transparent;
-  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 0;
+  border: none;
   background: none;
   font-family: var(--font);
-  font-size: 14px;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--muted);
   cursor: pointer;
 }
-.tab--active {
-  color: var(--brand-strong);
-  font-weight: 700;
-  background: var(--brand-soft);
-  border-color: var(--brand-line);
-}
+.navbtn--active { color: var(--brand-strong); }
+.navbtn--active svg { stroke-width: 2.4; }
 
 /* ===== 페이지 ===== */
 .app__view { padding: 16px; }
@@ -186,6 +189,70 @@ body {
   background: var(--brand-soft);
   font-weight: 700;
 }
+
+/* ===== 단계 타임라인 ===== */
+.tl {
+  display: flex;
+  margin-top: 12px;
+}
+.tl__step {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: var(--font);
+  cursor: pointer;
+}
+/* 단계 사이 연결선 */
+.tl__step::before {
+  content: "";
+  position: absolute;
+  top: 13px;
+  right: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--line);
+}
+.tl__step:first-child::before { display: none; }
+.tl__dot {
+  position: relative;
+  z-index: 1;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--surface);
+  border: 2px solid var(--line);
+  color: var(--muted);
+}
+.tl__label { font-size: 10.5px; font-weight: 600; color: var(--muted); }
+.tl__date { font-size: 10px; color: var(--past); }
+
+/* 합격 */
+.tl__step--pass .tl__dot { background: var(--brand); border-color: var(--brand); color: #fff; }
+.tl__step--pass .tl__label { color: var(--brand-strong); }
+.tl__step--pass::before { background: var(--brand); }
+/* 불합격 */
+.tl__step--fail .tl__dot { background: #c0453b; border-color: #c0453b; color: #fff; }
+.tl__step--fail .tl__label { color: #c0453b; }
+/* 현재 단계 (오늘 할 일) */
+.tl__step--active .tl__dot {
+  border-color: var(--brand);
+  color: var(--brand-strong);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+.tl__step--active .tl__label { color: var(--ink); }
+/* 날짜 지났는데 결과 미입력 */
+.tl__step--await .tl__dot { border-style: dashed; border-color: var(--brand-line); }
 
 /* ===== 칩 ===== */
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
@@ -350,8 +417,9 @@ body {
 /* ===== FAB ===== */
 .fab {
   position: fixed;
+  z-index: 21;
   right: max(16px, calc(50% - 210px + 16px));
-  bottom: 22px;
+  bottom: calc(74px + env(safe-area-inset-bottom));
   width: 54px;
   height: 54px;
   border-radius: 16px;             /* 살짝 각진 = 도트 느낌 */
