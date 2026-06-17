@@ -8,7 +8,7 @@ import { Icon } from './Icon.js';
 // onBookmark / onHide / onPin: (id) => void 콜백
 export const JobCard = (job, { onBookmark, onHide, onPin } = {}) => {
   const el = html(`
-    <article class="card card--job">
+    <article class="card card--job ${job._pinned ? 'card--pinned' : ''}">
       <header class="card__head">
         <h3 class="card__title">${esc(job.company_name)}</h3>
         <div class="card__dday">

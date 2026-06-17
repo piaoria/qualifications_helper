@@ -65,7 +65,7 @@ export const SchedulePage = async (mount) => {
         : '<span class="badge badge--past">종료</span>';
       const pinned = isPinned('exam', e.id);
       const card = html(`
-        <article class="card card--exam">
+        <article class="card card--exam ${pinned ? 'card--pinned' : ''}">
           <header class="card__head">
             <h3 class="card__title">${esc(name)}</h3>
             <div class="card__dday">

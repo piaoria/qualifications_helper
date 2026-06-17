@@ -267,25 +267,28 @@ body {
 .card__dday { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .card__next { font-size: 11px; font-weight: 600; color: var(--muted); }
 
-/* 고정(핀) 버튼 */
+/* 고정(핀) 버튼 — 테두리 없는 아이콘, 터치 영역 확보 */
 .pin {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--surface);
-  color: var(--muted);
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: color-mix(in srgb, var(--muted) 60%, transparent);
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.12s, background 0.12s;
 }
-.pin--on {
-  color: var(--brand-strong);
-  border-color: var(--brand-line);
-  background: var(--brand-soft);
-}
+.pin:active { background: color-mix(in srgb, var(--ink) 7%, transparent); }
+.pin--on { color: var(--brand); }
+
+/* 고정된 항목 강조 (왼쪽 코랄 라인) */
+.card--pinned { border-left: 3px solid var(--brand); }
+.up--pinned { border-left: 3px solid var(--brand); }
 
 .card__dates {
   display: grid;

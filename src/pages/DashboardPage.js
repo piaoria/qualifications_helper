@@ -62,9 +62,10 @@ const Row = (it, onPin) => {
     </div>
     <button class="pin ${it._pinned ? 'pin--on' : ''}" data-pin aria-label="고정">${Icon('pin', { size: 14, fill: it._pinned })}</button>
     ${DdayBadge(it.date)}`;
+  const cls = `up ${it._pinned ? 'up--pinned' : ''}`;
   const el = it.url
-    ? html(`<a class="up" href="${esc(it.url)}" target="_blank" rel="noopener">${inner}</a>`)
-    : html(`<div class="up">${inner}</div>`);
+    ? html(`<a class="${cls}" href="${esc(it.url)}" target="_blank" rel="noopener">${inner}</a>`)
+    : html(`<div class="${cls}">${inner}</div>`);
   el.querySelector('[data-pin]').addEventListener('click', (ev) => {
     ev.preventDefault();
     ev.stopPropagation();
