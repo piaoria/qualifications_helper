@@ -210,10 +210,29 @@ body {
   font-weight: 700;
 }
 
-/* ===== 단계 타임라인 ===== */
+/* ===== 단계 타임라인 (필기/실기 2줄) ===== */
 .tl {
   display: flex;
+  flex-direction: column;
+  gap: 14px;
   margin-top: 12px;
+}
+.tl__group {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.tl__group-label {
+  flex-shrink: 0;
+  width: 26px;
+  padding-top: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.tl__track {
+  display: flex;
+  flex: 1;
 }
 .tl__step {
   flex: 1;

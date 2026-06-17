@@ -1,5 +1,5 @@
 // Service Worker — 오프라인 캐시 (앱 셸)
-const CACHE = 'qh-v10';
+const CACHE = 'qh-v11';
 
 // 최초 설치 시 미리 캐시할 앱 셸 (나머지는 런타임 캐시)
 const SHELL = [

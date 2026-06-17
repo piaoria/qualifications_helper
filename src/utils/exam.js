@@ -8,7 +8,7 @@ const MILESTONES = [
   ['written_result_date', '필기발표'],
   ['practical_apply_end', '실기접수'],
   ['practical_exam_start', '실기시험'],
-  ['final_result_date', '최종발표'],
+  ['final_result_date', '실기발표'],
 ];
 
 // 오늘 이후 가장 가까운 다음 단계 → { date, label } (모두 지났으면 null)
