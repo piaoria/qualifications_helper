@@ -124,7 +124,10 @@ const collectQnet = async () => {
 
   const n = await upsert('exam_schedules', rows, 'certification_id,round');
   console.log(`큐넷: ${items.length}건 수신 → ${n}건 저장`);
-  await logSync('qnet', 'success', n);
+  // 임시 진단: 응답 필드명/샘플 종목명 기록
+  const sample = items[0] || {};
+  const debug = `recv=${items.length} matched=${rows.length} keys=[${Object.keys(sample).join('|')}] names=[${items.slice(0, 5).map((it) => it.jmfldnm || it.jmNm || it.qualNm || it.jmNm || '').join(',')}]`;
+  await logSync('qnet', 'success', n, debug);
 };
 
 // ============================================================
