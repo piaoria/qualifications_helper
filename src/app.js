@@ -52,6 +52,14 @@ view.addEventListener('touchend', (e) => {
   if (next >= 0 && next < ORDER.length) navigate(ORDER[next]);
 }, { passive: true });
 
+// 저장소 영구화 요청 — 공간 부족 시 localStorage/IndexedDB가 삭제되지 않도록.
+// WHY: 설치형 PWA에서 고정·알림·진행상태(로컬 저장)가 사라지는 현상 방지.
+if (navigator.storage?.persist) {
+  navigator.storage.persisted().then((p) => {
+    if (!p) navigator.storage.persist();
+  });
+}
+
 // 초기 화면
 navigate('dashboard');
 
