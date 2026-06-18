@@ -6,4 +6,5 @@ export const SUPABASE_ANON_KEY =
 
 // 웹푸시(B) VAPID 공개키 — `npx web-push generate-vapid-keys`로 생성 후 붙여넣기.
 // 비공개키는 코드에 두지 말고 Supabase Edge Function 시크릿(VAPID_PRIVATE_KEY)에 저장.
-export const VAPID_PUBLIC_KEY = '';
+export const VAPID_PUBLIC_KEY =
+  'BLPgdSV9ZawfBTHfQJax2tR2E1OD5qJ_Egpdr3HVaEo6LWXsvAOgOxEwu7AlzKXTrH1e7Hz38VsP-katPzIh4l0';
