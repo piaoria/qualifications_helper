@@ -2,6 +2,11 @@
 import { DashboardPage } from './pages/DashboardPage.js';
 import { SchedulePage } from './pages/SchedulePage.js';
 import { JobPage } from './pages/JobPage.js';
+import { runLocalCheck } from './services/notifyService.js';
+import { getExamSchedules } from './services/certificationService.js';
+import { getJobPostings } from './services/jobService.js';
+import { openInbox } from './components/NotifyInbox.js';
+import { unreadCount } from './utils/notifyStore.js';
 
 const routes = {
   dashboard: DashboardPage,
@@ -49,6 +54,21 @@ view.addEventListener('touchend', (e) => {
 // 초기 화면
 navigate('dashboard');
 
+// 알림함(🔔) — 헤더 버튼 + 안 읽음 뱃지
+const bellBtn = document.getElementById('inbox-btn');
+const badge = document.getElementById('inbox-badge');
+const refreshBadge = async () => {
+  try {
+    const n = await unreadCount();
+    badge.hidden = n === 0;
+    badge.textContent = n > 9 ? '9+' : String(n);
+  } catch {
+    badge.hidden = true;
+  }
+};
+bellBtn?.addEventListener('click', () => openInbox(refreshBadge));
+refreshBadge();
+
 // Service Worker 등록 (PWA 오프라인/설치)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -57,3 +77,14 @@ if ('serviceWorker' in navigator) {
     );
   });
 }
+
+// 로컬 알림(A) — 앱 열릴 때 임박 일정 검사. 권한 있을 때만 동작, 실패해도 앱엔 영향 없음.
+window.addEventListener('load', async () => {
+  try {
+    const [exams, jobs] = await Promise.all([getExamSchedules(), getJobPostings()]);
+    await runLocalCheck(exams, jobs);
+    await refreshBadge();
+  } catch (err) {
+    console.error('로컬 알림 검사 실패:', err);
+  }
+});

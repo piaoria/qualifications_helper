@@ -183,3 +183,40 @@ create policy "read_job_postings"   on job_postings   for select using (true);
 create policy "update_job_state" on job_postings for update using (true) with check (true);
 
 -- sync_logs 는 service_role 만 접근 (읽기 정책 없음 → anon 차단)
+
+
+-- =====================================================================
+-- 7. 웹푸시(B) — 푸시 구독 + 알림 대상
+-- =====================================================================
+-- push_subscriptions: 기기별 브라우저 푸시 구독 정보
+create table if not exists push_subscriptions (
+  device_id     text primary key,            -- 프런트가 만든 기기 식별자
+  subscription  jsonb not null,              -- PushSubscription.toJSON()
+  updated_at    timestamptz not null default now()
+);
+
+comment on table push_subscriptions is '기기별 웹푸시 구독 (Edge Function 발송 대상)';
+
+-- alarm_targets: 어떤 항목을 며칠 전(D-N) 알릴지 (기기별)
+create table if not exists alarm_targets (
+  id          bigint generated always as identity primary key,
+  device_id   text not null,
+  ref_type    text not null,                 -- 'exam' | 'job'
+  ref_id      text not null,                 -- 대상 id
+  days        int  not null default 3,       -- D-N
+  created_at  timestamptz not null default now()
+);
+
+comment on table alarm_targets is '기기별 마감 알림 대상 (Edge Function이 매일 검사)';
+
+create index if not exists idx_alarm_device on alarm_targets(device_id);
+
+alter table push_subscriptions enable row level security;
+alter table alarm_targets      enable row level security;
+
+-- 단일 사용자 가정 → anon이 자기 기기 구독/대상 관리 (insert/update/delete) 허용.
+-- 발송(service_role)은 RLS 우회.
+create policy "anon_push_sub_all" on push_subscriptions
+  for all using (true) with check (true);
+create policy "anon_alarm_all" on alarm_targets
+  for all using (true) with check (true);

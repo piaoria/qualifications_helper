@@ -4,6 +4,33 @@
 
 ---
 
+## [2026-06-18] — 알림함(헤더 🔔) — 받은 알림 다시보기
+
+### feat
+- 헤더 우측 **🔔 알림함 버튼 + 안 읽음 뱃지** → 바텀시트로 받은 알림 목록 확인
+  - `notifyStore`(IndexedDB) — A(페이지)·B(SW push) 알림을 한 곳에 기록
+  - `NotifyInbox` 컴포넌트 — 목록/상대시간/모두 지우기, 닫을 때 읽음 처리
+  - 캐시 `qh-v22`
+
+---
+
+## [2026-06-18] — 마감 알림(🔔) — 로컬(A) + 서버 푸시(B)
+
+### feat
+- **알림 토글(🔔)**: 일정/공고 카드에 종 버튼 추가 (핀과 동일 패턴)
+  - `alarmService` — localStorage에 `{ days: D-N }` 저장
+- **로컬 알림(A)**: 앱 열 때 임박 일정 검사 → 시스템 알림 (`notifyService`, 서버 불필요)
+- **서버 푸시(B)**: 앱 닫혀 있어도 발송
+  - `pushService` — VAPID 구독 → `push_subscriptions` 저장, 알림 대상 `alarm_targets` 동기화
+  - `sw.js` — `push` / `notificationclick` 핸들러 (캐시 `qh-v21`)
+  - Edge Function `send-reminders` — 매일 cron, D-N 항목 push 발송
+  - 스키마: `push_subscriptions`, `alarm_targets` 추가
+
+### 설정 필요 (B 활성화)
+- `VAPID_PUBLIC_KEY`(config.js) + Edge Function 시크릿/배포 — `supabase/functions/send-reminders/README.md`
+
+---
+
 ## [2026-06-18] — 페이로드 절감(raw 제외) + 앱 셸 스크롤 분리
 
 ### perf

@@ -5,6 +5,9 @@ import { JobCard } from '../components/JobCard.js';
 import { EmptyState, LoadingState, ErrorState } from '../components/EmptyState.js';
 import { Icon } from '../components/Icon.js';
 import { isPinned, togglePin } from '../services/pinService.js';
+import { isAlarmOn, toggleAlarm } from '../services/alarmService.js';
+import { ensurePermission } from '../services/notifyService.js';
+import { subscribePush, syncAlarms } from '../services/pushService.js';
 
 export const JobPage = async (mount) => {
   const view = html(`
@@ -57,7 +60,7 @@ export const JobPage = async (mount) => {
 
   const draw = () => {
     const jobs = visible()
-      .map((j) => ({ ...j, _pinned: isPinned('job', j.id) }))
+      .map((j) => ({ ...j, _pinned: isPinned('job', j.id), _alarmOn: isAlarmOn('job', j.id) }))
       .sort((a, b) => (a._pinned === b._pinned ? 0 : a._pinned ? -1 : 1)); // 고정 우선
     countEl.textContent = `총 ${jobs.length}건`;
     list.replaceChildren();
@@ -78,6 +81,15 @@ export const JobPage = async (mount) => {
           },
           onPin: (id) => {
             togglePin('job', id);
+            draw();
+          },
+          onAlarm: async (id) => {
+            if (!isAlarmOn('job', id)) {
+              await ensurePermission();
+              await subscribePush(); // VAPID 미설정 시 no-op (A만 동작)
+            }
+            toggleAlarm('job', id);
+            syncAlarms(); // 서버 푸시 대상 갱신 (push 미설정 시 no-op)
             draw();
           },
         })

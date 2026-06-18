@@ -7,6 +7,9 @@ import { CertTimeline } from '../components/CertTimeline.js';
 import { nextMilestone } from '../utils/exam.js';
 import { daysUntil } from '../utils/date.js';
 import { isPinned, togglePin } from '../services/pinService.js';
+import { isAlarmOn, toggleAlarm } from '../services/alarmService.js';
+import { ensurePermission } from '../services/notifyService.js';
+import { subscribePush, syncAlarms } from '../services/pushService.js';
 import { getExamSchedules } from '../services/certificationService.js';
 import { getJobPostings } from '../services/jobService.js';
 import { mountCalendar } from './CalendarPage.js';
@@ -64,11 +67,13 @@ export const SchedulePage = async (mount) => {
         ? `<span class="card__next">${next.label}</span>${DdayBadge(next.date)}`
         : '<span class="badge badge--past">종료</span>';
       const pinned = isPinned('exam', e.id);
+      const alarmOn = isAlarmOn('exam', e.id);
       const card = html(`
         <article class="card card--exam ${pinned ? 'card--pinned' : ''}">
           <header class="card__head">
             <h3 class="card__title">${esc(name)}</h3>
             <div class="card__dday">
+              <button class="alarm ${alarmOn ? 'alarm--on' : ''}" data-alarm aria-label="알림" title="마감 알림">${Icon('bell', { fill: alarmOn })}</button>
               <button class="pin ${pinned ? 'pin--on' : ''}" data-pin>${pinned ? '고정됨' : '고정'}</button>
               ${dday}
             </div>
@@ -78,6 +83,15 @@ export const SchedulePage = async (mount) => {
       `);
       card.querySelector('[data-pin]').addEventListener('click', () => {
         togglePin('exam', e.id);
+        renderTimeline();
+      });
+      card.querySelector('[data-alarm]').addEventListener('click', async () => {
+        if (!alarmOn) {
+          await ensurePermission();
+          await subscribePush(); // VAPID 미설정 시 no-op (A만 동작)
+        }
+        toggleAlarm('exam', e.id);
+        syncAlarms(); // 서버 푸시 대상 갱신 (push 미설정 시 no-op)
         renderTimeline();
       });
       card.append(CertTimeline(e));
