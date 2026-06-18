@@ -23,3 +23,6 @@ Thumbs.db
 # Build
 dist/
 build/
+
+# Supabase CLI 임시파일
+supabase/.temp/
