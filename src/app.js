@@ -3,6 +3,7 @@ import { DashboardPage } from './pages/DashboardPage.js';
 import { SchedulePage } from './pages/SchedulePage.js';
 import { JobPage } from './pages/JobPage.js';
 import { runLocalCheck } from './services/notifyService.js';
+import { isPushActive } from './services/pushService.js';
 import { getExamSchedules } from './services/certificationService.js';
 import { getJobPostings } from './services/jobService.js';
 import { openInbox } from './components/NotifyInbox.js';
@@ -79,8 +80,10 @@ if ('serviceWorker' in navigator) {
 }
 
 // 로컬 알림(A) — 앱 열릴 때 임박 일정 검사. 권한 있을 때만 동작, 실패해도 앱엔 영향 없음.
+// 단, 서버 푸시(B) 구독 중이면 같은 알림 중복이라 건너뜀.
 window.addEventListener('load', async () => {
   try {
+    if (await isPushActive()) return;
     const [exams, jobs] = await Promise.all([getExamSchedules(), getJobPostings()]);
     await runLocalCheck(exams, jobs);
     await refreshBadge();

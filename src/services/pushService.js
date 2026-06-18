@@ -7,6 +7,18 @@ import { listAlarms } from './alarmService.js';
 export const pushSupported = () =>
   'serviceWorker' in navigator && 'PushManager' in window;
 
+// 서버 푸시(B)가 실제로 구독돼 있는지. WHY: 구독돼 있으면 로컬(A) 검사는
+// 같은 알림을 중복 발송하므로 건너뛰기 위함.
+export const isPushActive = async () => {
+  if (!pushSupported() || !VAPID_PUBLIC_KEY) return false;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    return !!(await reg.pushManager.getSubscription());
+  } catch {
+    return false;
+  }
+};
+
 // VAPID 공개키(base64url) → Uint8Array (applicationServerKey 형식)
 const urlBase64ToUint8Array = (base64) => {
   const padding = '='.repeat((4 - (base64.length % 4)) % 4);
