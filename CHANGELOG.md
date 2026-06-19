@@ -4,6 +4,18 @@
 
 ---
 
+## [2026-06-18] — 학습 탭: AI 생성 문제 풀이 (필기/실기)
+
+### feat
+- **문제 은행**: `quiz_questions` 테이블 추가 — 필기/실기 4지선다 + 해설, `reviewed` 검수 플래그(통과분만 앱 노출)
+- **생성**: `collect.mjs` `collectQuiz()` — Gemini(2.0 Flash, 무료 티어)로 종목·유형별 부족분만 생성 → `reviewed=false` 저장
+  - 자정 KST 워크플로 `quiz.yml`(15:00 UTC), `QUIZ_ONLY=1` + `GEMINI_API_KEY` 시크릿 필요
+  - `QUIZ_CERTS`로 종목 한정 (현재 ADsP)
+- **학습 탭(📖)**: 하단 nav 추가 — 종목→필기/실기 선택→문제 풀이, 보기 즉시 채점·해설, 결과 정답률
+  - `quizService` / `QuizRunner` / `QuizPage`, 캐시 `qh-v25`
+
+---
+
 ## [2026-06-18] — 저장소 영구화 (로컬 데이터 유실 방지)
 
 ### fix

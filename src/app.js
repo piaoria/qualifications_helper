@@ -2,6 +2,7 @@
 import { DashboardPage } from './pages/DashboardPage.js';
 import { SchedulePage } from './pages/SchedulePage.js';
 import { JobPage } from './pages/JobPage.js';
+import { QuizPage } from './pages/QuizPage.js';
 import { runLocalCheck } from './services/notifyService.js';
 import { isPushActive } from './services/pushService.js';
 import { getExamSchedules } from './services/certificationService.js';
@@ -13,11 +14,12 @@ const routes = {
   dashboard: DashboardPage,
   schedule: SchedulePage,
   jobs: JobPage,
+  quiz: QuizPage,
 };
 
 const view = document.getElementById('view');
 const tabs = document.querySelectorAll('.navbtn');
-const ORDER = ['dashboard', 'schedule', 'jobs'];
+const ORDER = ['dashboard', 'schedule', 'jobs', 'quiz'];
 let current = 'dashboard';
 
 const navigate = (name) => {

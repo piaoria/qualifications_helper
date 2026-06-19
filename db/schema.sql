@@ -220,3 +220,35 @@ create policy "anon_push_sub_all" on push_subscriptions
   for all using (true) with check (true);
 create policy "anon_alarm_all" on alarm_targets
   for all using (true) with check (true);
+
+
+-- =====================================================================
+-- 8. quiz_questions — AI 생성 문제 은행 (필기/실기)
+-- =====================================================================
+-- collect.mjs(collectQuiz)가 Claude로 생성 → service_role로 insert.
+-- AI 생성물이라 reviewed=false로 들어오고, 검수한 것만(reviewed=true) 앱에 노출.
+create table if not exists quiz_questions (
+  id                bigint generated always as identity primary key,
+  certification_id  bigint not null references certifications(id) on delete cascade,
+  exam_type         text not null,              -- 'written'(필기) | 'practical'(실기)
+  category          text,                       -- 과목/파트 (예: 데이터베이스 구축)
+  question          text not null,
+  choices           jsonb not null,             -- 보기 4개 배열 ["...", "...", ...]
+  answer_index      int  not null,              -- 정답 보기 인덱스 (0-based)
+  explanation       text not null,              -- 해설
+  reviewed          boolean not null default false,  -- 검수 통과 여부 (앱 노출 조건)
+  source            text not null default 'ai',
+  raw               jsonb,                       -- 생성 원본/메타
+  created_at        timestamptz not null default now()
+);
+
+comment on table quiz_questions is 'AI 생성 자격증 문제 은행 (필기/실기)';
+
+create index if not exists idx_quiz_cert on quiz_questions(certification_id, exam_type);
+create index if not exists idx_quiz_reviewed on quiz_questions(reviewed) where reviewed;
+
+alter table quiz_questions enable row level security;
+
+-- 읽기: 검수 통과한 문제만 anon 노출 (미검수 문제는 차단)
+create policy "read_reviewed_quiz" on quiz_questions
+  for select using (reviewed = true);

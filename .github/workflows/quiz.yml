@@ -1,0 +1,24 @@
+name: Generate quiz
+
+# 매일 자정 KST(15:00 UTC) 문제 생성 + 수동 실행 가능
+on:
+  schedule:
+    - cron: '0 15 * * *'
+  workflow_dispatch:
+
+jobs:
+  quiz:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Generate quiz questions
+        run: node scripts/collect.mjs
+        env:
+          QUIZ_ONLY: '1'
+          QUIZ_CERTS: 'ADsP'
+          SUPABASE_URL: https://vghkaykcqvihamirnhma.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

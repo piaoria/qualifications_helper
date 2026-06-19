@@ -11,6 +11,9 @@ const {
   SUPABASE_SERVICE_ROLE_KEY,
   DATA_GO_KR_KEY,
   SARAMIN_ACCESS_KEY,
+  GEMINI_API_KEY,
+  QUIZ_ONLY,
+  QUIZ_CERTS,
   DRY_RUN,
 } = process.env;
 
@@ -375,8 +378,169 @@ const collectSaramin = async () => {
 };
 
 // ============================================================
+// 문제 은행 — Gemini로 필기/실기 문제 생성 (동기 generateContent)
+// ============================================================
+// 종목 × (필기/실기)별 목표 개수까지만 부족분 생성 → reviewed=false로 저장.
+// 비용 통제 + 매일 돌아도 폭주 방지. GEMINI_API_KEY 없으면 건너뜀.
+// 키 발급: https://aistudio.google.com/apikey (무료 티어 제공)
+const QUIZ_TARGET = 15;       // 종목·유형당 목표 보유 문제 수
+const QUIZ_BATCH = 8;         // 1회 생성 개수
+const QUIZ_MODEL = 'gemini-2.0-flash'; // 무료 티어. 최신 모델로 교체 가능
+const EXAM_TYPES = [
+  { key: 'written', label: '필기' },
+  { key: 'practical', label: '실기' },
+];
+// 단일 시험(실기 없음) 종목 → 필기 문제만 생성
+const WRITTEN_ONLY = new Set(['ADsP', 'DAsP']);
+
+// 생성 문제 JSON 스키마 (Gemini responseSchema — type은 대문자)
+const QUIZ_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    questions: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          category: { type: 'STRING' },
+          question: { type: 'STRING' },
+          choices: { type: 'ARRAY', items: { type: 'STRING' } },
+          answer_index: { type: 'INTEGER' },
+          explanation: { type: 'STRING' },
+        },
+        required: ['category', 'question', 'choices', 'answer_index', 'explanation'],
+      },
+    },
+  },
+  required: ['questions'],
+};
+
+// (cert, exam_type)의 현재 보유 문제 수
+const quizCount = async (certId, examType) => {
+  const res = await sb(
+    `quiz_questions?select=id&certification_id=eq.${certId}&exam_type=eq.${examType}`,
+    { headers: { Prefer: 'count=exact' } }
+  );
+  const range = res.headers.get('content-range'); // 형식: "0-9/42"
+  if (range && range.includes('/')) return Number(range.split('/')[1]) || 0;
+  const arr = await res.json();
+  return Array.isArray(arr) ? arr.length : 0;
+};
+
+// Gemini에 문제 n개 요청 → 파싱된 배열 반환
+const askGemini = async (certName, examLabel, n) => {
+  const prompt =
+    `너는 한국 국가기술자격 출제위원이야. "${certName}" ${examLabel} 시험 대비 ` +
+    `4지선다 문제 ${n}개를 만들어줘.\n` +
+    `- 실제 시험 난이도와 출제 범위에 맞출 것\n` +
+    `- category: 해당 문제의 과목/파트명\n` +
+    `- choices: 보기 정확히 4개\n` +
+    `- answer_index: 정답 보기의 0-based 인덱스\n` +
+    `- explanation: 왜 그 답이 정답인지 2~3문장 해설\n` +
+    `- 보기와 해설은 사실에 근거해 정확해야 함`;
+
+  const url =
+    `https://generativelanguage.googleapis.com/v1beta/models/${QUIZ_MODEL}:generateContent` +
+    `?key=${encodeURIComponent(GEMINI_API_KEY)}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        responseMimeType: 'application/json',
+        responseSchema: QUIZ_SCHEMA,
+      },
+    }),
+  });
+  if (!res.ok) throw new Error(`Gemini ${res.status}: ${(await res.text()).slice(0, 200)}`);
+  const json = await res.json();
+  const text = json?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  const parsed = JSON.parse(text);
+  // 보기 4개·정답 인덱스 유효성만 통과시킴 (방어)
+  return (parsed.questions || []).filter(
+    (q) =>
+      Array.isArray(q.choices) &&
+      q.choices.length === 4 &&
+      q.answer_index >= 0 &&
+      q.answer_index < 4
+  );
+};
+
+const collectQuiz = async () => {
+  if (!GEMINI_API_KEY) {
+    console.log('문제: GEMINI_API_KEY 없음 → 건너뜀');
+    return;
+  }
+  const certRes = await sb('certifications?select=id,name&is_active=eq.true');
+  let certs = await certRes.json();
+
+  // QUIZ_CERTS="ADsP,DAsP" 처럼 지정하면 해당 종목만 생성 (없으면 전체)
+  if (QUIZ_CERTS) {
+    const want = new Set(QUIZ_CERTS.split(',').map((s) => s.trim()));
+    certs = certs.filter((c) => want.has(c.name));
+  }
+
+  let total = 0;
+  for (const cert of certs) {
+    const types = WRITTEN_ONLY.has(cert.name) ? EXAM_TYPES.slice(0, 1) : EXAM_TYPES;
+    for (const { key, label } of types) {
+      const have = dry ? 0 : await quizCount(cert.id, key);
+      const need = QUIZ_TARGET - have;
+      if (need <= 0) {
+        console.log(`문제[${cert.name} ${label}]: ${have}개 보유 → 충분`);
+        continue;
+      }
+      const ask = Math.min(need, QUIZ_BATCH);
+      const questions = await askGemini(cert.name, label, ask);
+      const now = new Date().toISOString();
+      const rows = questions.map((q) => ({
+        certification_id: cert.id,
+        exam_type: key,
+        category: q.category || null,
+        question: q.question,
+        choices: q.choices,
+        answer_index: q.answer_index,
+        explanation: q.explanation,
+        reviewed: false,
+        source: 'ai',
+        raw: { model: QUIZ_MODEL },
+        created_at: now,
+      }));
+      if (dry) {
+        console.log(`[DRY] 문제[${cert.name} ${label}]: ${rows.length}개 생성`, JSON.stringify(rows[0]).slice(0, 160));
+      } else {
+        const r = await sb('quiz_questions', {
+          method: 'POST',
+          headers: { Prefer: 'return=minimal' },
+          body: JSON.stringify(rows),
+        });
+        if (!r.ok) throw new Error(`quiz insert 실패 ${r.status}: ${await r.text()}`);
+      }
+      total += rows.length;
+      console.log(`문제[${cert.name} ${label}]: +${rows.length}개 (보유 ${have} → ${have + rows.length})`);
+    }
+  }
+  await logSync('quiz', 'success', total);
+  console.log(`문제 생성 종료: 총 +${total}개 (미검수)`);
+};
+
+// ============================================================
 const main = async () => {
-  console.log(`수집 시작 (dry=${dry})`);
+  console.log(`수집 시작 (dry=${dry}, quizOnly=${QUIZ_ONLY === '1'})`);
+
+  // 자정 워크플로 등 문제 생성만 돌릴 때
+  if (QUIZ_ONLY === '1') {
+    try {
+      await collectQuiz();
+    } catch (e) {
+      console.error('문제 생성 실패:', e.message);
+      await logSync('quiz', 'error', 0, e.message);
+    }
+    console.log('수집 종료');
+    return;
+  }
+
   try {
     await collectQnet();
   } catch (e) {
